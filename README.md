@@ -1,7 +1,9 @@
-# Phase-2-Backend-Project: TinderLite
+# Phase-2-Backend-Project: Timber ~ "Fall in Love"
 
 This is the final project for "Phase 2" of the Flex course for [DigitalCrafts]
 Houston - Sept 2018 Cohort. It is focused on backend technologies using [Node.js].
+
+> DISCLAIMER: This project is meant to showcase backend skills learned through the web development bootcamp course.  It is not meant to infringe on any Tinder technologies or the app itself. 
 
 > NOTE: This project was completed in accordance with the requirements in order to fulfill Texas state requirements for credit for the course.
 
@@ -51,7 +53,8 @@ Travis CI carries out a series of tasks to to build and test the code from the G
 - Have at least one AJAX-based GET endpoint that powers a dynamic dropdown or type-ahead component
 
 - Authentication using [passport.js](http://www.passportjs.org/)
-  - OAuth provider:  <!--(Twitter, Facebook, GitHub, etc) -->
+  - OAuth provider:  Facebook
+  - Local strategy for authentication: email and password
 
 - Project website publicly reachable via `https`
   - Used: [Zeit Now](https://zeit.co/now)
@@ -72,8 +75,6 @@ Travis CI carries out a series of tasks to to build and test the code from the G
 ## Workflow 
 
 - [Trello](https://trello.com/b/EgTR8BAy/workflow)
-
-## Learning Objectives
 
 
 #buildersofthings #webuildtheweb
