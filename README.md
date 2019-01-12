@@ -34,7 +34,7 @@ Audrey Nguyen [Github:gwin333](https://github.com/gwin333)
 
 Travis CI carries out a series of tasks to to build and test the code from the Github repository to see if it works properly.
 
-[![Build Status](https://travis-ci.com/renterial/Phase-2-Backend-Project.svg?token=QqYp9T3X5ea6JSmgwpjS&branch=master)](https://travis-ci.com/renterial/Phase-2-Backend-Project)
+[![Build Status](https://travis-ci.com/DCPhase2TimberLite/Phase-2-Backend-Project.svg?branch=master)](https://travis-ci.com/DCPhase2TimberLite/Phase-2-Backend-Project)
 
 ## Technical Requirements
 
