@@ -18,6 +18,8 @@
   "homepage": "https://github.com/DCPhase2TimberLite/Phase-2-Backend-Project#readme",
   "dependencies": {
     "express": "^4.16.4",
+    "passport": "^0.4.0",
+    "passport-facebook": "^2.1.1",
     "pg": "^7.8.0",
     "pg-hstore": "^2.3.2",
     "sequelize": "^4.42.0",
