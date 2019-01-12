@@ -1,0 +1,26 @@
+{
+  "name": "phase-2-backend-project",
+  "version": "1.0.0",
+  "description": "This is the final project for \"Phase 2\" of the Flex course for [DigitalCrafts] Houston - Sept 2018 Cohort. It is focused on backend technologies using [Node.js].",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DCPhase2TimberLite/Phase-2-Backend-Project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DCPhase2TimberLite/Phase-2-Backend-Project/issues"
+  },
+  "homepage": "https://github.com/DCPhase2TimberLite/Phase-2-Backend-Project#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "pg": "^7.8.0",
+    "pg-hstore": "^2.3.2",
+    "sequelize": "^4.42.0",
+    "sequelize-cli": "^5.4.0"
+  }
+}
