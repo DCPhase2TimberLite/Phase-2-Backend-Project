@@ -20,20 +20,24 @@
             
             <!-- Main Content -->
             <div class="main-content">
-                <div class="card profile-card">
-                    <img class="card-img-top" src="profile.png" alt="Card image cap">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between" id="card-header">
-                            <div class="card-title" id="profile-name">Name</div>
-                            <div class="card-title" id="profile-age">25</div>
+                    <div class="card profile-card">
+                        <img class="card-img-top" src="profile.png" alt="Card image cap">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between" id="card-header">
+                                <div class="card-title" id="profile-name">Name</div>
+                                <div class="card-title" id="profile-age">25</div>
+                            </div>
+                        <p class="card-text">Some info.</p>
+
+                        <form action="/app_reaction/" method="post" id="currentProfile">
+                            <input type="text" name="UserID" value="${userID}" style="display:none;">
+                        </form>
+                        <div class="d-flex justify-content-between" id="card-reactions">
+                            <button type="submit" name="response" value="dislike" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
+                            <button type="submit" name="response" value="like" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></button>
                         </div>
-                      <p class="card-text">Some info.</p>
-                      <div class="d-flex justify-content-between" id="card-reactions">
-                        <a href="#" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></a>
-                        <a href="#" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
+                        </div>
                     </div>
-                    </div>
-                </div>
             </div>
 
         </div>
