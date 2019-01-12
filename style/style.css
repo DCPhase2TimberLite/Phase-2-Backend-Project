@@ -1,0 +1,26 @@
+body {
+    font-family: Luminari;
+}
+
+.sidenav {
+    background-color: #f8f6f7;
+    color: #fff;
+    height: 100%;
+    width: 22%;
+    position: absolute;
+    top: 0; /* stay at the top */
+    left: 0;
+}
+
+.sidenav p{
+    padding: 8px 0px;
+    font-weight: 825;
+    margin: 20px;
+    width: 100px;
+    height: 100px;
+    box-shadow: 0 0 5px 10px #ff5c33;
+}
+
+.main-content {
+    width: 78%
+}
