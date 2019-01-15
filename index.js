@@ -12,7 +12,7 @@ const passport = require('passport');
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/success', (req, res) => res.send("You have successfully logged in"));
+app.get('/success', (req, res) => res.sendFile(path.join(__dirname, '/public/html', 'myprofile.html')));
 app.get('/error', (req, res) => res.send("error logging in"));
 
 passport.serializeUser(function(user, cb) {
