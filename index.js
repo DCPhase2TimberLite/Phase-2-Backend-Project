@@ -7,14 +7,6 @@ const app = express()
 
 app.use(express.static('public'))
 
-app.get('/', function (req, res) {
-  res.send(buildWelcomePage())
-})
-
-app.get('/myProfile', function (req, res) {
-    res.send(buildMyProfilePage())
-})
-
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log('App listening on port ' + port))
 
@@ -64,6 +56,23 @@ app.get('/auth/facebook/callback',
   function (req, res) {
     res.redirect('/success')
   })
+
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      EXPRESS ROUTING
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+app.get('/', function (req, res) {
+    res.send(buildWelcomePage())
+  })
+  
+app.get('/myProfile', function (req, res) {
+    res.send(buildMyProfilePage())
+})
+
+app.post('/myProfile', function (req, res) {
+
+}
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -315,7 +324,7 @@ function buildMyProfilePage () {
                         </div>
                 </div>
                 
-                <form method="post" action="/action_page_post.php">
+                <form method="post" action="/myProfile">
                     <div data-role="rangeslider">
                       <label for="age-min">Min</label>
                       <input type="range" name="price-min" id="price-min" value="18" min="18" max="100">
