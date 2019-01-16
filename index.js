@@ -236,7 +236,14 @@ function buildWelcomePage(){
 }
 
 function buildAppPage (user) {
-    if (user.picture == "N/A"){user.picture = defaultPhoto}
+    user = {
+        name: 'test name',
+        age: 25,
+        bio: 'bjkalsdhjklhsjl asjdfklsahjdfk hasjkfl hsjakd lfhjakl dfhjska fdhjska dasjfks',
+        ID: 'testUserID',
+        picture: defaultPhoto
+    }
+    // if (user.picture == "N/A"){user.picture = defaultPhoto}
     
     return `
     <!DOCTYPE html>
