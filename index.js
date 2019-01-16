@@ -72,7 +72,7 @@ app.get('/myProfile', function (req, res) {
 
 app.post('/myProfile', function (req, res) {
 
-}
+})
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
