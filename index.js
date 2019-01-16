@@ -46,3 +46,4 @@ app.get('/auth/facebook/callback',
   function(req, res) {
     res.redirect('/success');
   });
+

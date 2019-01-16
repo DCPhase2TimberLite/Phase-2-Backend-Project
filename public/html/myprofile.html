@@ -4,23 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- CSS stylesheets -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/style/style.css">
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    
+    <!-- Icons CDN -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
     <title>Timber: Fall in "Like"</title>
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
             <div class="sidenav">
-                <h5 style="text-align:center; color: #000; font-weight: 800;">My Profile</h5>
-                <p style="text-align:center; background-color:#ff5c33;">Preferences</p>
-                <p style="text-align:center; background-color:#ff5c33;">Matches</p>
+                <h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5>
+                <p style="text-align:center; background-color:#ff5050;">Preferences</p>
+                
+                <div class="btn-group">
+                        <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Looking for
+                        </button>
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="#">Men</a>
+                          <a class="dropdown-item" href="#">Women</a>
+                          <a class="dropdown-item" href="#">Men & Women</a>
+                        </div>
+                </div>
+                
+                <form method="post" action="/action_page_post.php">
+                    <div data-role="rangeslider">
+                      <label for="age-min">Min</label>
+                      <input type="range" name="price-min" id="price-min" value="18" min="18" max="100">
+                      <label for="age-max">Max</label>
+                      <input type="range" name="price-max" id="price-max" value="100" min="18" max="100">
+                    </div>
+                      <input type="submit" data-inline="true" value="Submit">
+                    </form>
+                <p style="text-align:center; background-color:#ff5050;">Matches</p>
             </div>
             <div class="main-content">
-                <h3 style="text-align:center;">Let's see who's out there!</h3>
+                <h3 style="text-align:center;">Timber - Fall in <i class="far fa-heart"></i></h3>
             </div>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    
+    <!-- Bootstrap scripts -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
