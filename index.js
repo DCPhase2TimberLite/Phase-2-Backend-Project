@@ -259,7 +259,7 @@ function buildAppPage (userID) {
             <!-- Main Content -->
             <div class="main-content">
                     <div class="card profile-card">
-                        <img class="card-img-top" src="profile.png" alt="Card image cap">
+                        <img class="card-img-top" src="/style/profile.png" alt="Card image cap">
                         <div class="card-body">
                             <div class="d-flex justify-content-between" id="card-header">
                                 <div class="card-title" id="profile-name">Name</div>
