@@ -3,6 +3,7 @@ const express = require('express')
 const path = require('path')
 const app = express()
 
+app.use(express.static("public"))
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, '/public/html', 'welcome.html')))
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log('App listening on port ' + port))
@@ -12,7 +13,7 @@ const passport = require('passport')
 app.use(passport.initialize())
 app.use(passport.session())
 
-app.get('/success', (req, res) => res.send('You have successfully logged in'))
+app.get('/success', (req, res) => res.sendFile(path.join(__dirname, '/public/html', 'appPage.html')))
 app.get('/error', (req, res) => res.send('error logging in'))
 
 passport.serializeUser(function (user, cb) {
