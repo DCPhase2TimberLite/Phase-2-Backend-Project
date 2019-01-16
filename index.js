@@ -83,6 +83,8 @@ app.post('/myProfile', function (req, res) {
 //                      HTML Templating
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+const defaultPhoto = "/style/profile.png"
+
 function buildWelcomePage(){
   return `
   <!DOCTYPE html>
@@ -233,8 +235,9 @@ function buildWelcomePage(){
   `
 }
 
-function buildAppPage (userID) {
-    userID = '12ASDvsdfsdf'
+function buildAppPage (user) {
+    if (user.picture == "N/A"){user.picture = defaultPhoto}
+    
     return `
     <!DOCTYPE html>
 <html lang="en">
@@ -244,7 +247,7 @@ function buildAppPage (userID) {
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <link rel="stylesheet" type="text/css" href="/style/style.css">
     <title>Timber: Fall in "Like"</title>
 </head>
 <body>
@@ -258,16 +261,16 @@ function buildAppPage (userID) {
             <!-- Main Content -->
             <div class="main-content">
                     <div class="card profile-card">
-                        <img class="card-img-top" src="/style/profile.png" alt="Card image cap">
+                        <img class="card-img-top" src="${user.picture}" alt="Card image cap">
                         <div class="card-body">
                             <div class="d-flex justify-content-between" id="card-header">
-                                <div class="card-title" id="profile-name">Name</div>
-                                <div class="card-title" id="profile-age">25</div>
+                                <div class="card-title" id="profile-name">${user.name}</div>
+                                <div class="card-title" id="profile-age">${user.age}</div>
                             </div>
-                        <p class="card-text">Some info.</p>
+                        <p class="card-text">${user.bio}</p>
 
                         <form action="/app_reaction/" method="post" id="currentProfile">
-                            <input type="text" name="UserID" value="${userID}" style="display:none;">
+                            <input type="text" name="UserID" value="${user.ID}" style="display:none;">
                         </form>
                         <div class="d-flex justify-content-between" id="card-reactions">
                             <button type="submit" name="response" value="dislike" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
