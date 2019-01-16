@@ -70,9 +70,13 @@ app.get('/myProfile', function (req, res) {
     res.send(buildMyProfilePage())
 })
 
+app.get('/appPage', function (req, res) {
+    res.send(buildAppPage())
+})
+
 app.post('/myProfile', function (req, res) {
 
-}
+})
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -229,8 +233,6 @@ function buildWelcomePage(){
   `
 }
 
-
-
 function buildAppPage (userID) {
     userID = '12ASDvsdfsdf'
     return `
@@ -286,8 +288,6 @@ function buildAppPage (userID) {
     `
 }
 
-
-
 function buildMyProfilePage () {
     return `
     <!DOCTYPE html>
@@ -311,6 +311,7 @@ function buildMyProfilePage () {
         <div class="row">
             <div class="sidenav">
                 <h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5>
+                <a href="/appPage"><button>Back</button></a>
                 <p style="text-align:center; background-color:#ff5050;">Preferences</p>
                 
                 <div class="btn-group">
