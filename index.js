@@ -251,9 +251,8 @@ function buildAppPage (userID) {
     <div class="container-fluid">
         <div class="row">
             <div class="sidenav">
-                <a href="/myProfile"><h5 style="text-align:center; color: #000; font-weight: 800;">My Profile</h5></a>
-                <p style="text-align:center; background-color:#ff5c33;">Preferences</p>
-                <p style="text-align:center; background-color:#ff5c33;">Matches</p>
+                <a href="/myProfile"><h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5></a>
+                <p style="text-align:center; background-color:#ff5050;;">Matches</p>
             </div>
             
             <!-- Main Content -->
