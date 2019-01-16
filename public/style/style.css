@@ -2,22 +2,25 @@ body {
     /* font-family: Luminari; */
 }
 
+.row {
+    height: 100%;
+    width: 100%;
+    position: fixed;
+}
+
 .sidenav {
     background-color: #f8f6f7;
     color: #fff;
+    width: 33%;
     height: 100%;
-    width: 22%;
-    position: absolute;
-    top: 0; /* stay at the top */
-    left: 0;
+    box-shadow: 3px 0 10px #ff5c33;
 }
 
 .sidenav p{
     padding: 8px 0px;
     font-weight: 825;
     margin: 20px;
-    width: 100px;
-    height: 100px;
+    width: 100%;
     box-shadow: 0 5px 10px #ff5c33;
 }
 
