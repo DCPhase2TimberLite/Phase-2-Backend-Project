@@ -1,10 +1,4 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//                      SEQUELIZE SETUP
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-const Sequelize = require('sequelize')
-const db = require('./models')
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      EXPRESS SETUP
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const express = require('express')
@@ -24,7 +18,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.get('/success', function (req, res) {
-  res.send(buildAppPage())
+    res.redirect('/app')
 })
 app.get('/error', (req, res) => res.send('error logging in'))
 
@@ -68,15 +62,15 @@ app.get('/auth/facebook/callback',
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 app.get('/', function (req, res) {
-  res.send(buildWelcomePage())
-})
-
+    res.send(buildWelcomeHTML())
+  })
+  
 app.get('/myProfile', function (req, res) {
-  res.send(buildMyProfilePage())
+    res.send(buildMyProfileHTML())
 })
 
-app.get('/appPage', function (req, res) {
-  res.send(buildAppPage())
+app.get('/app', function (req, res) {
+    res.send(buildAppHTML())
 })
 
 app.post('/myProfile', function (req, res) {
@@ -89,7 +83,7 @@ app.post('/myProfile', function (req, res) {
 
 const defaultPhoto = "/style/profile.png"
 
-function buildWelcomePage(){
+function buildWelcomeHTML(){
   return `
   <!DOCTYPE html>
     <html lang="en">
@@ -144,7 +138,7 @@ function buildWelcomePage(){
 `
  }
 
-function buildAppPage (user) {
+function buildAppHTML (user) {
     user = {
         name: 'test name',
         age: 25,
@@ -158,13 +152,18 @@ function buildAppPage (user) {
     <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/style/style.css">
-    <title>Timber: Fall in "Like"</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+<!-- CSS stylesheets -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+<link rel="stylesheet" type="text/css" href="/style/style.css">
+
+<!-- Icons CDN -->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+<title>Timber: Fall in "Like"</title>
 </head>
 <body>
     <div class="container-fluid">
@@ -206,8 +205,8 @@ function buildAppPage (user) {
     `
 }
 
-function buildMyProfilePage () {
-  return `
+function buildMyProfileHTML () {
+    return `
     <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -229,7 +228,7 @@ function buildMyProfilePage () {
         <div class="row">
             <div class="sidenav">
                 <h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5>
-                <a href="/appPage"><button>Back</button></a>
+                <a href="/app"><button>Back</button></a>
                 <p style="text-align:center; background-color:#ff5050;">Preferences</p>
                 
                 <div class="btn-group">
