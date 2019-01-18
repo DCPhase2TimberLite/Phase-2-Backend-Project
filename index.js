@@ -18,7 +18,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.get('/success', function (req, res) {
-    res.send(buildAppPage())
+  res.send(buildAppPage())
 })
 app.get('/error', (req, res) => res.send('error logging in'))
 
@@ -57,27 +57,25 @@ app.get('/auth/facebook/callback',
     res.redirect('/success')
   })
 
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      EXPRESS ROUTING
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 app.get('/', function (req, res) {
-    res.send(buildWelcomePage())
-  })
-  
+  res.send(buildWelcomePage())
+})
+
 app.get('/myProfile', function (req, res) {
-    res.send(buildMyProfilePage())
+  res.send(buildMyProfilePage())
 })
 
 app.get('/appPage', function (req, res) {
-    res.send(buildAppPage())
+  res.send(buildAppPage())
 })
 
 app.post('/myProfile', function (req, res) {
 
 })
-
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      HTML Templating
@@ -88,152 +86,57 @@ const defaultPhoto = "/style/profile.png"
 function buildWelcomePage(){
   return `
   <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-  <title>Timber</title>
-  <style>
-      :root {
-          --input-padding-x: .75rem;
-          --input-padding-y: .75rem;
-      }
-
-      html,
-      body {
-          height: 100%;
-      }
-
-      body {
-          display: -ms-flexbox;
-          display: flex;
-          -ms-flex-align: center;
-          align-items: center;
-          padding-top: 40px;
-          padding-bottom: 40px;
-          background-color: #f5f5f5;
-      }
-
-      .form-signin {
-          width: 100%;
-          max-width: 420px;
-          padding: 15px;
-          margin: auto;
-      }
-
-      .form-label-group {
-          position: relative;
-          margin-bottom: 1rem;
-      }
-
-      .form-label-group > input,
-      .form-label-group > label {
-          padding: var(--input-padding-y) var(--input-padding-x);
-      }
-
-      .form-label-group > label {
-          position: absolute;
-          top: 0;
-          left: 0;
-          display: block;
-          width: 100%;
-          margin-bottom: 0;
-          line-height: 1.5;
-          color: #495057;
-          cursor: text; /* Match the input under the label */
-          border: 1px solid transparent;
-          border-radius: .25rem;
-          transition: all .1s ease-in-out;
-      }
-
-      .form-label-group input::-webkit-input-placeholder {
-          color: transparent;
-      }
-
-      .form-label-group input:-ms-input-placeholder {
-          color: transparent;
-      }
-
-      .form-label-group input::-ms-input-placeholder {
-          color: transparent;
-      }
-
-      .form-label-group input::-moz-placeholder {
-          color: transparent;
-      }
-
-      .form-label-group input::placeholder {
-          color: transparent;
-      }
-
-      .form-label-group input:not(:placeholder-shown) {
-          padding-top: calc(var(--input-padding-y) + var(--input-padding-y) * (2 / 3));
-          padding-bottom: calc(var(--input-padding-y) / 3);
-      }
-
-      .form-label-group input:not(:placeholder-shown) ~ label {
-          padding-top: calc(var(--input-padding-y) / 3);
-          padding-bottom: calc(var(--input-padding-y) / 3);
-          font-size: 12px;
-          color: #777;
-      }
-
-      /* Fallback for Edge
-      -------------------------------------------------- */
-      @supports (-ms-ime-align: auto) {
-      .form-label-group > label {
-          display: none;
-      }
-      .form-label-group input::-ms-input-placeholder {
-          color: #777;
-      }
-      }
-
-      /* Fallback for IE
-      -------------------------------------------------- */
-      @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
-      .form-label-group > label {
-          display: none;
-      }
-      .form-label-group input:-ms-input-placeholder {
-          color: #777;
-      }
-      }
-
-  </style>
-</head>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="/style/welcome.css">
+        <title>Timber</title>
+    </head>
 <body>
-  <form class="form-signin">
-      <div class="text-center mb-4">
-        <img class="mb-4" src="../../assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
-        <h1 class="h3 mb-3 font-weight-normal">Timber-Lite</h1>
-        <p>Fall in "like"</p>
-      </div>
+    <div class="card-body">
+        <div class="text-center mb-4">
+            <img class="mb-4" src="../../assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+            <h1 class="h3 mb-3 font-weight-normal">Timber-Lite</h1>
+            <p>Fall in "like"</p>
+        </div>
+        <input type='checkbox' id='form-switch'>
+        <form class="form-signin" id='login-form'>
+            <div class="form-label-group">
+                <input type="email" id="inputEmail" class="form-control" placeholder="Email address" autofocus>
+            </div>
+    
+            <div class="form-label-group">
+                <input type="password" id="inputPassword" class="form-control" placeholder="Password">
+            </div>
+    
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+            <button class="btn btn-lg btn-primary btn-block"><a href=auth/facebook>Sign in with Facebook</a></button>
+            <button type="button" class="btn btn-lg btn-primary btn-block"><label for='form-switch'><span>Register</span></label></button>
+        </form>
 
-      <div class="form-label-group">
-        <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
-        <label for="inputEmail">Email address</label>
-      </div>
-
-      <div class="form-label-group">
-        <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-        <label for="inputPassword">Password</label>
-      </div>
-
-      <div class="checkbox mb-3">
-        <label>
-          <input type="checkbox" value="remember-me"> Remember me
-        </label>
-      </div>
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-      <a href=auth/facebook>Sign in with Facebook</a>
-    </form>
+        <form class="form-signin" id='register-form'>
+            <div class="form-label-group">
+                <input type="text" class="form-control" placeholder="First Name" autofocus>
+            </div>
+            <div class="form-label-group">
+                <input type="email" id="inputEmail" class="form-control" placeholder="Email address">
+            </div>
+    
+            <div class="form-label-group">
+                <input type="password" id="inputPassword" class="form-control" placeholder="Password">
+            </div>
+    
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+            <button type="button" class="btn btn-primary btn-lg btn-block"><label for='form-switch'>Already a Member ? Sign In Now..</label></button>
+        </form>
+    </div>
 </body>
 </html>
-  `
-}
+`
+ }
 
 function buildAppPage (user) {
     user = {
@@ -298,7 +201,7 @@ function buildAppPage (user) {
 }
 
 function buildMyProfilePage () {
-    return `
+  return `
     <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -309,7 +212,7 @@ function buildMyProfilePage () {
     <!-- CSS stylesheets -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
-    <link rel="stylesheet" type="text/css" href="../style/style.css">
+    <link rel="stylesheet" type="text/css" href="/style/style.css">
     
     <!-- Icons CDN -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
