@@ -107,3 +107,20 @@ body {
   -webkit-box-shadow: 3px 3px 3px #ccc;
   box-shadow: 3px 3px 3px #ccc;
 }
+.center-div {
+  position: absolute;
+  margin: auto;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 800px;
+  height: 475px;
+  background-color: #ccc;
+  border-radius: 3px;
+  padding: 30px;
+}
+
+a {
+  color: white
+}
