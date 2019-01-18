@@ -64,6 +64,10 @@ app.get('/auth/facebook/callback',
 app.get('/', function (req, res) {
     res.send(buildWelcomeHTML())
   })
+
+app.post('/', function (req, res) {
+    res.send(buildMyProfileHTML())
+})
   
 app.get('/myProfile', function (req, res) {
     res.send(buildMyProfileHTML())
@@ -108,7 +112,7 @@ function buildWelcomeHTML(){
             <p>Fall in "like"</p>
         </div>
         <input type='checkbox' id='form-switch'>
-        <form class="form-signin" id='login-form'>
+        <form class="form-signin" id='login-form' action="/" method="post">
             <div class="form-label-group">
                 <input type="email" id="inputEmail" class="form-control" placeholder="Email address" autofocus>
             </div>
