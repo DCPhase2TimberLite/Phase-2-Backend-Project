@@ -81,7 +81,9 @@ app.post('/myProfile', function (req, res) {
 //                      HTML Templating
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-function buildWelcomePage () {
+const defaultPhoto = "/style/profile.png"
+
+function buildWelcomePage(){
   return `
   <!DOCTYPE html>
     <html lang="en">
@@ -136,9 +138,17 @@ function buildWelcomePage () {
 `
  }
 
-function buildAppPage (userID) {
-  userID = '12ASDvsdfsdf'
-  return `
+function buildAppPage (user) {
+    user = {
+        name: 'test name',
+        age: 25,
+        bio: 'bjkalsdhjklhsjl asjdfklsahjdfk hasjkfl hsjakd lfhjakl dfhjska fdhjska dasjfks',
+        ID: 'testUserID',
+        picture: defaultPhoto
+    }
+    // if (user.picture == "N/A"){user.picture = defaultPhoto}
+    
+    return `
     <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -161,16 +171,16 @@ function buildAppPage (userID) {
             <!-- Main Content -->
             <div class="main-content">
                     <div class="card profile-card">
-                        <img class="card-img-top" src="/style/profile.png" alt="Card image cap">
+                        <img class="card-img-top" src="${user.picture}" alt="Card image cap">
                         <div class="card-body">
                             <div class="d-flex justify-content-between" id="card-header">
-                                <div class="card-title" id="profile-name">Name</div>
-                                <div class="card-title" id="profile-age">25</div>
+                                <div class="card-title" id="profile-name">${user.name}</div>
+                                <div class="card-title" id="profile-age">${user.age}</div>
                             </div>
-                        <p class="card-text">Some info.</p>
+                        <p class="card-text">${user.bio}</p>
 
                         <form action="/app_reaction/" method="post" id="currentProfile">
-                            <input type="text" name="UserID" value="${userID}" style="display:none;">
+                            <input type="text" name="UserID" value="${user.ID}" style="display:none;">
                         </form>
                         <div class="d-flex justify-content-between" id="card-reactions">
                             <button type="submit" name="response" value="dislike" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
