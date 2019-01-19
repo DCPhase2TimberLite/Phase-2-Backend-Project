@@ -2,7 +2,7 @@
 //                      SEQUELIZE SETUP
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const Sequelize = require('sequelize')
-const db = require('./models')
+const db = require('../models')
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      EXPRESS SETUP
@@ -35,8 +35,9 @@ passport.deserializeUser(function (email, cb) {
     })
 })
 
-/* PASSPORT LOCAL AUTHENTICATION */
-
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//              PASSPORT LOCAL AUTHENTICATION
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const LocalStrategy = require('passport-local').Strategy
 
 passport.use(new LocalStrategy(
@@ -93,6 +94,8 @@ app.post('/', function (req, res) {
   res.send(buildMyProfileHTML())
 })
 
+
+// ~~~~~~~~~~~~~~~~~~~~~~FACEBOOK ROUTES~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 app.get('/auth/facebook',
   passport.authenticate('facebook'))
 
@@ -305,7 +308,14 @@ function buildAppHTML (user) {
 }
 
 function buildMyProfileHTML () {
-  return `
+    user = {
+        name: 'test name',
+        age: 25,
+        bio: 'bjkalsdhjklhsjl asjdfklsahjdfk hasjkfl hsjakd lfhjakl dfhjska fdhjska dasjfks',
+        ID: 'testUserID',
+        picture: defaultPhoto
+    }
+    return `
     <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -316,22 +326,27 @@ function buildMyProfileHTML () {
     <!-- CSS stylesheets -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
-    <link rel="stylesheet" type="text/css" href="/style/style.css">
+    <link rel="stylesheet" type="text/css" href="../style/style.css">
     
     <!-- Icons CDN -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-    <title>Timber: Fall in "Like"</title>
+    
+    <!-- Title-bar Icon -->
+    <link rel="shortcut icon" type="image/png" href="/public/style/flame.png" />
+
+    <title>Timber | Fall in "Like"</title>
 </head>
-<body>
+<body style="background-color:#686868">
     <div class="container-fluid">
         <div class="row">
-            <div class="sidenav">
-                <h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5>
-                <a href="/app"><button>Back</button></a>
+            <div class="sidenav" style="background-color:#f9f3f2;">
+                <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   My Profile</h5>
+                <a href="/appPage"><button>Back</button></a>
                 <p style="text-align:center; background-color:#ff5050;">Preferences</p>
                 
-                <div class="btn-group">
-                        <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <form method="post" action="/myProfile">
+                <!-- <div class="btn-group">
+                        <button type="button" class="btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                           Looking for
                         </button>
                         <div class="dropdown-menu">
@@ -339,26 +354,76 @@ function buildMyProfileHTML () {
                           <a class="dropdown-item" href="#">Women</a>
                           <a class="dropdown-item" href="#">Men & Women</a>
                         </div>
-                </div>
-                
-                <form method="post" action="/myProfile">
-                    <div data-role="rangeslider">
-                      <label for="age-min">Min</label>
-                      <input type="range" name="price-min" id="price-min" value="18" min="18" max="100">
-                      <label for="age-max">Max</label>
-                      <input type="range" name="price-max" id="price-max" value="100" min="18" max="100">
+                </div> -->
+            
+                    <div class="col-auto my-1">
+                        <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
+                        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
+                        <option selected>Choose one</option>
+                        <option value="1">Men &#9794;</option>
+                        <option value="2">Women &#9792;</option>
+                        <option value="3">Both</option>
+                        </select>
                     </div>
-                      <input type="submit" data-inline="true" value="Submit">
-                    </form>
-                <p style="text-align:center; background-color:#ff5050;">Matches</p>
+                
+                    <!-- <div data-role="rangeslider">
+                      <label for="age-min">Min</label>
+                      <input type="range" name="age-min" id="age-min" value="18" min="18" max="100">
+                      <label for="age-max">Max</label>
+                      <input type="range" name="age-max" id="age-max" value="100" min="18" max="100">
+                    </div><br /> -->
+
+                    <div class="form-row">
+                            <div class="col">
+                                <input type="integer" class="form-control" id="age-min" placeholder="Minimum Age">
+                            </div>
+                            <div class="col">
+                                <input type="integer" class="form-control" id="age-max" placeholder="Maximum Age">
+                            </div>
+                    </div>
+
+                      <input type="submit" class="btn-block" data-inline="true" value="Submit">
+                    </form><hr />
+
             </div>
             <div class="main-content">
                 <h3 style="text-align:center;">Timber - Fall in <i class="far fa-heart"></i></h3>
+                
+                <div class="card profile-card">
+                    <!-- <img class="card-img-top" src="profile.png" alt="Card image cap"> -->
+                    <img class="card-img-top" src="${user.picture}" alt="Card image cap">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between" id="card-header">
+                            <div class="card-title" id="profile-name">${user.name}</div>
+                            <div class="card-title" id="profile-age">${user.age}</div>
+                        </div>
+                    
+                    <form method="post" action="/myProfile">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">About you:</span>
+                        </div>
+                        <textarea class="form-control" aria-label="With textarea"></textarea>
+
+                        <button type="button" class="btn-danger">Save</button>
+                    </div>
+                    </form>
+
+                    <!-- <form action="/app_reaction/" method="post" id="currentProfile">
+                        <input type="text" name="UserID" value="${user.ID}" style="display:none;">
+                    </form> -->
+                    </div>
+                </div>
+                </div>
+
+                </div>
+            
+            
             </div>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <!-- <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> -->
     
     <!-- Bootstrap scripts -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
