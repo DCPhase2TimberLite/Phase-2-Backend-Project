@@ -99,22 +99,22 @@ app.post('/', function (req, res) {
 app.get('/auth/facebook',
   passport.authenticate('facebook'))
 
-app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/error' }),
-  function (req, res) {
+app.get('/auth/facebook/callback',passport.authenticate('facebook', { failureRedirect: '/error' }),function (req, res) {
     res.redirect('/app')
   })
 
-app.post('/login',
-  passport.authenticate('local', { failureRedirect: '/error' }),
-  function (req, res) {
+app.post('/login', passport.authenticate('local', { failureRedirect: '/error' }), function(req, res) {
     res.redirect('/app')
-  })
+})
 
 app.get('/error', (req, res) => res.send('error logging in'))
 
 app.get('/myProfile', function (req, res) {
   res.send(buildMyProfileHTML())
+})
+
+app.post('/myProfile', function (req, res) {
+
 })
 
 app.get('/app', function (req, res) {
@@ -125,9 +125,9 @@ app.get('/registration', function (req, res) {
   res.send(buildRegistrationPage())
 })
 
-app.post('/myProfile', function (req, res) {
-
-})
+app.get('/register', function (req, res) {
+    res.redirect('/app')
+  })
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      HTML Templating
