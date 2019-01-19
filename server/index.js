@@ -2,7 +2,7 @@
 //                      SEQUELIZE SETUP
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const Sequelize = require('sequelize')
-const db = require('./models')
+const db = require('../models')
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      EXPRESS SETUP
@@ -35,8 +35,9 @@ passport.deserializeUser(function (email, cb) {
     })
 })
 
-/* PASSPORT LOCAL AUTHENTICATION */
-
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//              PASSPORT LOCAL AUTHENTICATION
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const LocalStrategy = require('passport-local').Strategy
 
 passport.use(new LocalStrategy(
