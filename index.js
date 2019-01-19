@@ -1,4 +1,10 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      SEQUELIZE SETUP
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const Sequelize = require('sequelize')
+const db = require('./models')
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      EXPRESS SETUP
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const express = require('express')
@@ -15,20 +21,48 @@ app.listen(port, () => console.log('App listening on port ' + port))
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const passport = require('passport')
 app.use(passport.initialize())
+app.use(express.urlencoded())
 app.use(passport.session())
 
-app.get('/success', function (req, res) {
-    res.redirect('/app')
-})
-app.get('/error', (req, res) => res.send('error logging in'))
-
 passport.serializeUser(function (user, cb) {
-  cb(null, user)
+  cb(null, user.id)
 })
 
-passport.deserializeUser(function (obj, cb) {
-  cb(null, obj)
+passport.deserializeUser(function (email, cb) {
+  db.account.findOne({ where: { email: email } })
+    .then(function (user) {
+      cb(null, user.id)
+    })
 })
+
+/* PASSPORT LOCAL AUTHENTICATION */
+
+const LocalStrategy = require('passport-local').Strategy
+
+passport.use(new LocalStrategy(
+  function (email, password, done) {
+    console.log('test')
+    db.account.findOne({ where: { email: email } })
+      .then(function (user) {
+        // if (err) {
+        //     console.log("err")
+        //   return done(err)
+        // }
+
+        if (!user) {
+          console.log('!user')
+          return done(null, false)
+        }
+
+        if (user.pass != password) {
+          console.log('!=pass')
+          return done(null, false)
+        }
+        console.log('success')
+        return done(null, user)
+      })
+  }
+))
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      FACEBOOK AUTH
@@ -47,33 +81,43 @@ function (accessToken, refreshToken, profile, cb) {
 }
 ))
 
-app.get('/auth/facebook',
-  passport.authenticate('facebook'))
-
-app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/error' }),
-
-  function (req, res) {
-    res.redirect('/success')
-  })
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      EXPRESS ROUTING
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 app.get('/', function (req, res) {
-    res.send(buildWelcomeHTML())
-  })
-  
-app.get('/myProfile', function (req, res) {
-    res.send(buildMyProfileHTML())
+  res.send(buildWelcomeHTML())
 })
 
+app.post('/', function (req, res) {
+  res.send(buildMyProfileHTML())
+})
+
+app.get('/auth/facebook',
+  passport.authenticate('facebook'))
+
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/error' }),
+  function (req, res) {
+    res.redirect('/app')
+  })
+
+app.post('/login',
+  passport.authenticate('local', { failureRedirect: '/error' }),
+  function (req, res) {
+    res.redirect('/app')
+  })
+
+app.get('/error', (req, res) => res.send('error logging in'))
+
+app.get('/myProfile', function (req, res) {
+  res.send(buildMyProfileHTML())
+})
 
 app.get('/app', function (req, res) {
-    res.send(buildAppHTML())
+  res.send(buildAppHTML())
 })
-  
+
 app.get('/registration', function (req, res) {
   res.send(buildRegistrationPage())
 })
@@ -86,9 +130,9 @@ app.post('/myProfile', function (req, res) {
 //                      HTML Templating
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-const defaultPhoto = "/style/profile.png"
+const defaultPhoto = '/style/profile.png'
 
-function buildWelcomeHTML(){
+function buildWelcomeHTML () {
   return `
   <!DOCTYPE html>
     <html lang="en">
@@ -108,13 +152,13 @@ function buildWelcomeHTML(){
             <p>Fall in "like"</p>
         </div>
         <input type='checkbox' id='form-switch'>
-        <form class="form-signin" id='login-form'>
+        <form class="form-signin" id='login-form' action="/login" method="post">
             <div class="form-label-group">
-                <input type="email" id="inputEmail" class="form-control" placeholder="Email address" autofocus>
+                <input type="email" id="inputEmail" name="username" class="form-control" placeholder="Email address" autofocus>
             </div>
     
             <div class="form-label-group">
-                <input type="password" id="inputPassword" class="form-control" placeholder="Password">
+                <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password">
             </div>
     
             <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
@@ -122,20 +166,70 @@ function buildWelcomeHTML(){
             <button type="button" class="btn btn-lg btn-primary btn-block"><label for='form-switch'><span>Register</span></label></button>
         </form>
 
-        <form class="form-signin" id='register-form'>
-            <div class="form-label-group">
-                <input type="text" class="form-control" placeholder="First Name" autofocus>
+        <form id="register-form" class="center-div form-signin" style="width: 65%; max-width: 80%;">
+          <div id="header" class="form-group centered-stuff form-label-group">
+            <h1> Create Account</h1>
+          </div>
+          <!-- row -->
+          <div class="form-group form-row form-label-group">
+              <div class="form-group col" style="padding-right: 15px;">
+                <label for="inputName">First Name</label>
+                <input type="text" class="form-control" id="inputName" placeholder="First Name">
+              </div>
+        
+              <div class="form-group col" style="padding-left: 15px;">
+                <label for="gender">Gender</label>
+                <div class="form-group" id="gender"> 
+                    <div class="form-check form-check-inline" >
+                      <input class="form-check-input" type="radio" name="genderOptions" id="genderOption1" value="option1">
+                      <label class="form-check-label" for="genderOption1">Man</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="genderOptions" id="genderOption2" value="option2">
+                      <label class="form-check-label" for="genderOption2">Woman</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input class="form-check-input" type="radio" name="genderOptions" id="genderOption3" value="option3">
+                      <label class="form-check-label" for="genderOption3">Other</label>
+                    </div>
+                </div>
+              </div>
+          </div>
+          <!-- row -->
+          <div class="form-group row form-label-group">
+              <div class="form-group col">
+                <label for="exampleInputEmail1">Email address</label>
+                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+              </div>
+        
+              <div class="form-group col">
+                <label for="birthday">Birthday</label>
+                <input type="email" class="form-control" id="birthday" placeholder="01/20/1995">
+              </div>
+          </div>
+          <!-- row -->
+          <div class="form-group row form-label-group">
+              <div class="form-group col">
+                <label for="inputPassword">Password</label>
+                <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+              </div>
+        
+              <div class="form-group col">
+                <label for="uploadPhoto">Upload Photo</label>
+                <div class="custom-file" id="uploadPhoto">
+                  <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+                  <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                </div>
+              </div>
+          </div>
+          <div class="form-group row form-label-group">
+            <div class="form-group col">
+              <button type="button" class="btn btn-primary centered-stuff"><label for='form-switch'>Already a Member? Sign In Now..</label></button>
             </div>
-            <div class="form-label-group">
-                <input type="email" id="inputEmail" class="form-control" placeholder="Email address">
+            <div class="form-group col">
+              <button type="submit" class="btn btn-primary centered-stuff "><a href="/app" class>Submit</a></button>
             </div>
-    
-            <div class="form-label-group">
-                <input type="password" id="inputPassword" class="form-control" placeholder="Password">
-            </div>
-    
-            <button class="btn btn-lg btn-primary btn-block action-button" type="submit"><a href=/registration>Register</a></button>
-            <button type="button" class="btn btn-primary btn-lg btn-block"><label for='form-switch'>Already a Member ? Sign In Now..</label></button>
+          </div>
         </form>
     </div>
 </body>
@@ -144,16 +238,16 @@ function buildWelcomeHTML(){
 }
 
 function buildAppHTML (user) {
-    user = {
-        name: 'test name',
-        age: 25,
-        bio: 'bjkalsdhjklhsjl asjdfklsahjdfk hasjkfl hsjakd lfhjakl dfhjska fdhjska dasjfks',
-        ID: 'testUserID',
-        picture: defaultPhoto
-    }
-    // if (user.picture == "N/A"){user.picture = defaultPhoto}
-    
-    return `
+  user = {
+    name: 'test name',
+    age: 25,
+    bio: 'bjkalsdhjklhsjl asjdfklsahjdfk hasjkfl hsjakd lfhjakl dfhjska fdhjska dasjfks',
+    ID: 'testUserID',
+    picture: defaultPhoto
+  }
+  // if (user.picture == "N/A"){user.picture = defaultPhoto}
+
+  return `
     <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -211,7 +305,7 @@ function buildAppHTML (user) {
 }
 
 function buildMyProfileHTML () {
-    return `
+  return `
     <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -288,62 +382,63 @@ function buildRegistrationPage () {
     </head>
     <body>
     <div id="conatiner" class="center-div">
-    <div id="header" class="form-group centered-stuff">
-        <h1> Create Account</h1>
-    </div>
-    <!-- row -->
-    <div class="form-group form-row">
-        <div class="form-group col" style="padding-right: 15px;">
-        <label for="inputName">First Name</label>
-        <input type="text" class="form-control" id="inputName" placeholder="First Name">
+        <div id="header" class="form-group centered-stuff">
+            <h1> Create Account</h1>
         </div>
-
-        <div class="form-group col" style="padding-left: 15px;">
-        <label for="gender">Gender</label>
-        <div class="form-group" id="gender"> 
-            <div class="form-check form-check-inline" >
-            <input class="form-check-input" type="radio" name="genderOptions" id="genderOption1" value="option1">
-            <label class="form-check-label" for="genderOption1">Man</label>
+        <!-- row -->
+        <div class="form-group form-row">
+            <div class="form-group col" style="padding-right: 15px;">
+            <label for="inputName">First Name</label>
+            <input type="text" class="form-control" id="inputName" placeholder="First Name">
             </div>
-            <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="genderOptions" id="genderOption2" value="option2">
-            <label class="form-check-label" for="genderOption2">Woman</label>
-            </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="genderOptions" id="genderOption3" value="option3">
-                <label class="form-check-label" for="genderOption3">Other</label>
-            </div>
-        </div>
-        </div>
-    </div>
-    <!-- row -->
-    <div class="form-group row">
-        <div class="form-group col">
-        <label for="exampleInputEmail1">Email address</label>
-        <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
-        </div>
 
-        <div class="form-group col">
-        <label for="birthday">Birthday</label>
-        <input type="email" class="form-control" id="birthday" placeholder="01/20/1995">
+            <div class="form-group col" style="padding-left: 15px;">
+            <label for="gender">Gender</label>
+            <div class="form-group" id="gender"> 
+                <div class="form-check form-check-inline" >
+                <input class="form-check-input" type="radio" name="genderOptions" id="genderOption1" value="option1">
+                <label class="form-check-label" for="genderOption1">Man</label>
+                </div>
+                <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="genderOptions" id="genderOption2" value="option2">
+                <label class="form-check-label" for="genderOption2">Woman</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="genderOptions" id="genderOption3" value="option3">
+                    <label class="form-check-label" for="genderOption3">Other</label>
+                </div>
+            </div>
+            </div>
         </div>
-    </div>
-    <!-- row -->
-    <div class="form-group row">
-        <div class="form-group col">
-        <label for="inputPassword">Password</label>
-        <input type="password" class="form-control" id="inputPassword" placeholder="Password">
-        </div>
+        <!-- row -->
+        <div class="form-group row">
+            <div class="form-group col">
+            <label for="exampleInputEmail1">Email address</label>
+            <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+            </div>
 
-        <div class="form-group col">
-        <label for="uploadPhoto">Upload Photo</label>
-        <div class="custom-file" id="uploadPhoto">
-            <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
-            <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+            <div class="form-group col">
+            <label for="birthday">Birthday</label>
+            <input type="email" class="form-control" id="birthday" placeholder="01/20/1995">
+            </div>
         </div>
+        <!-- row -->
+        <div class="form-group row">
+            <div class="form-group col">
+            <label for="inputPassword">Password</label>
+            <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+            </div>
+
+            <div class="form-group col">
+            <label for="uploadPhoto">Upload Photo</label>
+            <div class="custom-file" id="uploadPhoto">
+                <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
+                <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+            </div>
+            </div>
         </div>
-    </div>
-    <button type="submit" class="btn btn-primary centered-stuff "><a href="/appPage" class>Submit</a></button>
+        <button type="button" class="btn btn-primary btn-lg btn-block"><label for='form-switch'>Already a Member? Sign In Now..</label></button>
+        <button type="submit" class="btn btn-primary centered-stuff "><a href="/app" class>Submit</a></button>
     </div>
     </body>
     </html>`
