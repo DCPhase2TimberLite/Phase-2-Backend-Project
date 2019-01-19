@@ -1,4 +1,10 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      SEQUELIZE SETUP
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const Sequelize = require('sequelize')
+const db = require('./models')
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      EXPRESS SETUP
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const express = require('express')
@@ -15,20 +21,48 @@ app.listen(port, () => console.log('App listening on port ' + port))
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const passport = require('passport')
 app.use(passport.initialize())
+app.use(express.urlencoded())
 app.use(passport.session())
 
-app.get('/success', function (req, res) {
-    res.redirect('/app')
+passport.serializeUser(function(user, cb) {
+    cb(null, user.id)
 })
-app.get('/error', (req, res) => res.send('error logging in'))
+  
+passport.deserializeUser(function(email, cb) {
+    db.account.findOne({where: {email:email}})
+    .then(function(user) {
+        cb(null, user.id)
+    })
+})
 
-passport.serializeUser(function (user, cb) {
-  cb(null, user)
-})
+                /* PASSPORT LOCAL AUTHENTICATION */
 
-passport.deserializeUser(function (obj, cb) {
-  cb(null, obj)
-})
+const LocalStrategy = require('passport-local').Strategy
+
+passport.use(new LocalStrategy(
+  function(email, password, done) {
+      console.log("test")
+        db.account.findOne({where: {email:email}})
+        .then(function(user) {
+        // if (err) {
+        //     console.log("err")
+        //   return done(err)
+        // }
+
+        if (!user) {
+            console.log("!user")
+          return done(null, false)
+        }
+
+        if (user.pass != password) {
+            console.log("!=pass")
+          return done(null, false)
+        }
+        console.log("success")
+        return done(null, user)
+      })
+  }
+))
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      FACEBOOK AUTH
@@ -47,16 +81,6 @@ function (accessToken, refreshToken, profile, cb) {
 }
 ))
 
-app.get('/auth/facebook',
-  passport.authenticate('facebook'))
-
-app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/error' }),
-
-  function (req, res) {
-    res.redirect('/success')
-  })
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      EXPRESS ROUTING
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,11 +88,31 @@ app.get('/auth/facebook/callback',
 app.get('/', function (req, res) {
     res.send(buildWelcomeHTML())
   })
+
+app.post('/', function (req, res) {
+    res.send(buildMyProfileHTML())
+})
+
+app.get('/auth/facebook',
+  passport.authenticate('facebook'))
+
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/error' }),
+  function (req, res) {
+    res.redirect('/app')
+  })
+
+app.post('/login',
+  passport.authenticate('local', { failureRedirect: '/error' }),
+  function(req, res) {
+    res.redirect('/app');
+})
+
+app.get('/error', (req, res) => res.send('error logging in'))
   
 app.get('/myProfile', function (req, res) {
     res.send(buildMyProfileHTML())
 })
-
 
 app.get('/app', function (req, res) {
     res.send(buildAppHTML())
@@ -108,13 +152,13 @@ function buildWelcomeHTML(){
             <p>Fall in "like"</p>
         </div>
         <input type='checkbox' id='form-switch'>
-        <form class="form-signin" id='login-form'>
+        <form class="form-signin" id='login-form' action="/login" method="post">
             <div class="form-label-group">
-                <input type="email" id="inputEmail" class="form-control" placeholder="Email address" autofocus>
+                <input type="email" id="inputEmail" name="username" class="form-control" placeholder="Email address" autofocus>
             </div>
     
             <div class="form-label-group">
-                <input type="password" id="inputPassword" class="form-control" placeholder="Password">
+                <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password">
             </div>
     
             <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
@@ -127,11 +171,11 @@ function buildWelcomeHTML(){
                 <input type="text" class="form-control" placeholder="First Name" autofocus>
             </div>
             <div class="form-label-group">
-                <input type="email" id="inputEmail" class="form-control" placeholder="Email address">
+                <input type="email" id="inputEmail2" class="form-control" placeholder="Email address">
             </div>
     
             <div class="form-label-group">
-                <input type="password" id="inputPassword" class="form-control" placeholder="Password">
+                <input type="password" id="inputPassword2" class="form-control" placeholder="Password">
             </div>
     
             <button class="btn btn-lg btn-primary btn-block action-button" type="submit"><a href=/registration>Register</a></button>
