@@ -363,7 +363,7 @@ function buildMyProfileHTML () {
             <div class="row">
                 <div class="sidenav" style="background-color:#f9f3f2;">
                     <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   My Profile</h5>
-                    <a href="/appPage"><button>Back</button></a>
+                    <a href="/app"><button>Back</button></a>
                     <p style="text-align:center; background-color:#ff5050;">Preferences</p>
                     
                     <form method="post" action="/myProfile">
