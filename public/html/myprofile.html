@@ -23,20 +23,15 @@
         <div class="row">
             <div class="sidenav" style="background-color:#f9f3f2;">
                 <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   My Profile</h5>
-                <a href="/appPage"><button>Back</button></a>
+                <a href="/app"><button>Back</button></a>
+
+                <form class="form-signout" id='logout-form' action="/logout" method="post">  
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">Sign out</button>
+                </form>
+                
                 <p style="text-align:center; background-color:#ff5050;">Preferences</p>
                 
                 <form method="post" action="/myProfile">
-                <!-- <div class="btn-group">
-                        <button type="button" class="btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          Looking for
-                        </button>
-                        <div class="dropdown-menu">
-                          <a class="dropdown-item" href="#">Men</a>
-                          <a class="dropdown-item" href="#">Women</a>
-                          <a class="dropdown-item" href="#">Men & Women</a>
-                        </div>
-                </div> -->
             
                     <div class="col-auto my-1">
                         <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
@@ -47,13 +42,6 @@
                         <option value="3">Both</option>
                         </select>
                     </div>
-                
-                    <!-- <div data-role="rangeslider">
-                      <label for="age-min">Min</label>
-                      <input type="range" name="age-min" id="age-min" value="18" min="18" max="100">
-                      <label for="age-max">Max</label>
-                      <input type="range" name="age-max" id="age-max" value="100" min="18" max="100">
-                    </div><br /> -->
 
                     <div class="form-row">
                             <div class="col">
@@ -91,9 +79,6 @@
                     </div>
                     </form>
 
-                    <!-- <form action="/app_reaction/" method="post" id="currentProfile">
-                        <input type="text" name="UserID" value="${userID}" style="display:none;">
-                    </form> -->
                     </div>
                 </div>
                 </div>
@@ -104,8 +89,6 @@
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <!-- <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> -->
     
     <!-- Bootstrap scripts -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
