@@ -40,29 +40,53 @@ passport.deserializeUser(function (email, cb) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const LocalStrategy = require('passport-local').Strategy
 
-passport.use(new LocalStrategy(
-  function (email, password, done) {
-    console.log('test')
-    db.account.findOne({ where: { email: email } })
-      .then(function (user) {
-        // if (err) {
-        //     console.log("err")
-        //   return done(err)
-        // }
+passport.use('login-local', new LocalStrategy(function (email, password, done) {
+    console.log('logging in user')
+        db.account.findOne({ where: { email: email } })
+            .then(function (user) {
+                // if (err) {
+                //     console.log("error signing user in")
+                // return done(err)
+                // }
 
-        if (!user) {
-          console.log('!user')
-          return done(null, false)
-        }
+                if (!user) {
+                console.log('account not found')
+                return done(null, false)
+                }
 
-        if (user.pass != password) {
-          console.log('!=pass')
-          return done(null, false)
-        }
-        console.log('success')
-        return done(null, user)
-      })
-  }
+                if (user.pass != password) {
+                console.log('!=pass')
+                return done(null, false)
+                }
+                console.log('success')
+                return done(null, user)
+            })
+    }
+))
+
+passport.use('register-local', new LocalStrategy(function (email, password, done) {
+        db.account.findOne({ where: { email: email } })
+            .then(function (user) {
+            if (!user) {
+                console.log('registering new account')
+                db.account.create({ email: email, pass: password }).then(function(user){
+                    console.log('success')
+                    return done(null, user)
+                })
+            } else {
+                    console.log("error creating account")
+                    return
+                }
+    
+            // if (user.pass != password) {
+            //     console.log('!=pass')
+            //     return done(null, false)
+            // }
+
+            // console.log('success')
+            // return done(null, user)
+            })
+    }
 ))
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,34 +123,31 @@ app.post('/', function (req, res) {
 app.get('/auth/facebook',
   passport.authenticate('facebook'))
 
-app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/error' }),
-  function (req, res) {
+app.get('/auth/facebook/callback',passport.authenticate('facebook', { failureRedirect: '/error' }),function (req, res) {
     res.redirect('/app')
   })
 
-app.post('/login',
-  passport.authenticate('local', { failureRedirect: '/error' }),
-  function (req, res) {
+app.post('/login', passport.authenticate('login-local', { failureRedirect: '/error' }), function(req, res) {
     res.redirect('/app')
-  })
+})
+
+app.post('/register', passport.authenticate('register-local', { failureRedirect: '/error2' }), function(req, res) {
+    res.redirect('/app')
+})
 
 app.get('/error', (req, res) => res.send('error logging in'))
+app.get('/error2', (req, res) => res.send('error creating account'))
 
 app.get('/myProfile', function (req, res) {
   res.send(buildMyProfileHTML())
 })
 
-app.get('/app', function (req, res) {
-  res.send(buildAppHTML())
-})
-
-app.get('/registration', function (req, res) {
-  res.send(buildRegistrationPage())
-})
-
 app.post('/myProfile', function (req, res) {
 
+})
+
+app.get('/app', function (req, res) {
+  res.send(buildAppHTML())
 })
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -155,21 +176,25 @@ function buildWelcomeHTML () {
             <p>Fall in "like"</p>
         </div>
         <input type='checkbox' id='form-switch'>
+
+
+
         <form class="form-signin" id='login-form' action="/login" method="post">
             <div class="form-label-group">
                 <input type="email" id="inputEmail" name="username" class="form-control" placeholder="Email address" autofocus>
             </div>
-    
             <div class="form-label-group">
                 <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password">
             </div>
-    
             <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
             <button class="btn btn-lg btn-primary btn-block action-button"><a href=auth/facebook>Sign in with Facebook</a></button>
             <button type="button" class="btn btn-lg btn-primary btn-block"><label for='form-switch'><span>Register</span></label></button>
         </form>
 
-        <form id="register-form" class="center-div form-signin" style="width: 65%; max-width: 80%;">
+
+
+
+        <form id="register-form" class="center-div form-signin" style="width: 65%; max-width: 80%;" action="/register" method="post">
           <div id="header" class="form-group centered-stuff form-label-group">
             <h1> Create Account</h1>
           </div>
@@ -177,9 +202,8 @@ function buildWelcomeHTML () {
           <div class="form-group form-row form-label-group">
               <div class="form-group col" style="padding-right: 15px;">
                 <label for="inputName">First Name</label>
-                <input type="text" class="form-control" id="inputName" placeholder="First Name">
+                <input type="text" class="form-control" id="inputName" name="first_name" placeholder="First Name">
               </div>
-        
               <div class="form-group col" style="padding-left: 15px;">
                 <label for="gender">Gender</label>
                 <div class="form-group" id="gender"> 
@@ -202,9 +226,8 @@ function buildWelcomeHTML () {
           <div class="form-group row form-label-group">
               <div class="form-group col">
                 <label for="exampleInputEmail1">Email address</label>
-                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+                <input type="email" class="form-control" id="exampleInputEmail1" name="username" placeholder="Enter email">
               </div>
-        
               <div class="form-group col">
                 <label for="birthday">Birthday</label>
                 <input type="email" class="form-control" id="birthday" placeholder="01/20/1995">
@@ -214,9 +237,8 @@ function buildWelcomeHTML () {
           <div class="form-group row form-label-group">
               <div class="form-group col">
                 <label for="inputPassword">Password</label>
-                <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+                <input type="password" class="form-control" name="password" id="inputPassword" placeholder="Password">
               </div>
-        
               <div class="form-group col">
                 <label for="uploadPhoto">Upload Photo</label>
                 <div class="custom-file" id="uploadPhoto">
@@ -230,7 +252,7 @@ function buildWelcomeHTML () {
               <button type="button" class="btn btn-primary centered-stuff"><label for='form-switch'>Already a Member? Sign In Now..</label></button>
             </div>
             <div class="form-group col">
-              <button type="submit" class="btn btn-primary centered-stuff "><a href="/app" class>Submit</a></button>
+              <button type="submit" class="btn btn-primary centered-stuff ">Submit</button>
             </div>
           </div>
         </form>
@@ -323,16 +345,16 @@ function buildMyProfileHTML () {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-        <!-- CSS stylesheets -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
-        <link rel="stylesheet" type="text/css" href="../style/style.css">
-        
-        <!-- Icons CDN -->
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-        
-        <!-- Title-bar Icon -->
-        <link rel="shortcut icon" type="image/png" href="/public/style/flame.png" />
+
+    <!-- CSS stylesheets -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/style/style.css">
+    
+    <!-- Icons CDN -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    
+    <!-- Title-bar Icon -->
+    <link rel="shortcut icon" type="image/png" href="/public/style/flame.png" />
 
         <title>Timber | Fall in "Like"</title>
     </head>
@@ -402,87 +424,13 @@ function buildMyProfileHTML () {
                 </div>
             </div>
         </div>
-        
-        <!-- Bootstrap scripts -->
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    </body>
-    </html>
+
+    </div> 
+    <!-- Bootstrap scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>
     `
-}
-
-function buildRegistrationPage () {
-  return `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <title>Registration Page</title>
-    <link rel="stylesheet" type="text/css" href="/style/welcome.css">
-    </head>
-    <body>
-    <div id="conatiner" class="center-div">
-        <div id="header" class="form-group centered-stuff">
-            <h1> Create Account</h1>
-        </div>
-        <!-- row -->
-        <div class="form-group form-row">
-            <div class="form-group col" style="padding-right: 15px;">
-            <label for="inputName">First Name</label>
-            <input type="text" class="form-control" id="inputName" placeholder="First Name">
-            </div>
-
-            <div class="form-group col" style="padding-left: 15px;">
-            <label for="gender">Gender</label>
-            <div class="form-group" id="gender"> 
-                <div class="form-check form-check-inline" >
-                <input class="form-check-input" type="radio" name="genderOptions" id="genderOption1" value="option1">
-                <label class="form-check-label" for="genderOption1">Man</label>
-                </div>
-                <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="genderOptions" id="genderOption2" value="option2">
-                <label class="form-check-label" for="genderOption2">Woman</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="genderOptions" id="genderOption3" value="option3">
-                    <label class="form-check-label" for="genderOption3">Other</label>
-                </div>
-            </div>
-            </div>
-        </div>
-        <!-- row -->
-        <div class="form-group row">
-            <div class="form-group col">
-            <label for="exampleInputEmail1">Email address</label>
-            <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
-            </div>
-
-            <div class="form-group col">
-            <label for="birthday">Birthday</label>
-            <input type="email" class="form-control" id="birthday" placeholder="01/20/1995">
-            </div>
-        </div>
-        <!-- row -->
-        <div class="form-group row">
-            <div class="form-group col">
-            <label for="inputPassword">Password</label>
-            <input type="password" class="form-control" id="inputPassword" placeholder="Password">
-            </div>
-
-            <div class="form-group col">
-            <label for="uploadPhoto">Upload Photo</label>
-            <div class="custom-file" id="uploadPhoto">
-                <input type="file" class="custom-file-input" id="inputGroupFile01" aria-describedby="inputGroupFileAddon01">
-                <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
-            </div>
-            </div>
-        </div>
-        <button type="button" class="btn btn-primary btn-lg btn-block"><label for='form-switch'>Already a Member? Sign In Now..</label></button>
-        <button type="submit" class="btn btn-primary centered-stuff "><a href="/app" class>Submit</a></button>
-    </div>
-    </body>
-    </html>`
 }
