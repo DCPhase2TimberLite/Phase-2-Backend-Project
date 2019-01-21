@@ -35,9 +35,9 @@ function findProfileById (id) {
 
 function filterProfilesByPreferences(myData){
     const myAge = getAge(myData.birthday)
-    const pref_min_birthdate = getBirthday(myData.pref_age_min)
-    const pref_max_birthdate = getBirthday(myData.pref_age_max)
-    console.log('My name is',myData.f_name, myData.l_name, ', I am a',myAge,'year old',myData.gender,'living in',myData.city,'and Im looking for a',myData.pref_gender,'born between the dates of',pref_max_birthdate,'and',pref_min_birthdate)
+    const newestBirthdate = getBirthday(myData.pref_age_min)
+    const oldestBirthdate = getBirthday(myData.pref_age_max)
+    console.log('My name is',myData.f_name, myData.l_name, ', I am a',myAge,'year old',myData.gender,'living in',myData.city,'and I am looking for a',myData.pref_gender,'born between the dates of',oldestBirthdate,'and',newestBirthdate)
     
     // Create Gender Arrays
     const myGenderArr = [myData.gender, 'B']
@@ -55,7 +55,7 @@ function filterProfilesByPreferences(myData){
             gender: {
                 [or]: [prefGenderArr]
             },
-            birthday: {$between: [pref_max_birthdate,pref_min_birthdate]},
+            birthday: {$between: [oldestBirthdate,newestBirthdate]},
             pref_gender: {
                 [or]: [myGenderArr]
             }, 
