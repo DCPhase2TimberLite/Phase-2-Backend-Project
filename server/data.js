@@ -24,23 +24,20 @@ userEmail = 'gmcilhatton0@google.ca'
 //         console.log(profile.l_name)
 //     })
 
-filterProfilesByPreferences('B', 18, 23, 'Toshloq')
-    .then(function(resultArray){
-        resultArray.forEach(function (object) {
-            console.log(object.f_name, object.l_name, object.gender, object.birthday,object.city)
-        })
-    })
+const myUserId = 66
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-function findAccountByEmail (email) {
-    return db.account.findOne({
-        where: {email:email}
+findProfileById(myUserId)
+    .then(function(myData){return filterProfilesByPreferences(myData)})
+        .then(function(resultArray){
+            resultArray.forEach(function (object) {
+            console.log(object.f_name, object.l_name, object.gender, object.birthday,object.city)
+        })
     })
-}
 
 function findProfileById (id) {
     return db.profiledata.findOne({
@@ -48,21 +45,71 @@ function findProfileById (id) {
     })
 }
 
-function filterProfilesByPreferences(gender, ageMin, ageMax, city){
-    console.log(gender, ageMin, ageMax, city)
-    // to-do: convert age into dates to compare against birthday
-    var notgender
-    if (gender=='F'){notgender='M'} else if (gender=='M'){notgender='F'} else {notgender='none'}
-    console.log(gender,notgender)
+function filterProfilesByPreferences(myData){
+    const myAge = getAge(myData.birthday)
+    const pref_min_birthdate = getBirthday(myData.pref_age_min)
+    const pref_max_birthdate = getBirthday(myData.pref_age_max)
+    console.log(myData.gender, myData.pref_gender)
+    console.log(myAge)
+    console.log(myData.pref_age_min, myData.pref_age_max)
+    console.log(pref_min_birthdate, pref_max_birthdate)
+    console.log(myData.city)
+    
+    // Create Gender Arrays
+    const myGenderArr = [myData.gender, 'B']
+    var prefGenderArr
+    if (myData.pref_gender=='B') {
+        prefGenderArr=['M','F','B']
+    } else {
+        prefGenderArr=[myData.pref_gender]
+    }
+    console.log(myGenderArr, prefGenderArr)
+    
+    // Run Sequelize Query
     return db.profiledata.findAll({
         where: {
-            gender: {[ne]:notgender},
-            pref_age_min: {[gte]:ageMin},
-            pref_age_min: {[lte]:ageMax},
-            city: city
+            city: myData.city,
+            gender: {
+                [or]: [prefGenderArr]
+            },
+            pref_gender: {
+                [or]: [myGenderArr]
+            }, 
+            pref_age_min: {[lte]:myAge},
+            pref_age_max: {[gte]:myAge}
         }
     })
 }
+
+function findAccountByEmail (email) {
+    return db.account.findOne({
+        where: {email:email}
+    })
+}
+
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                UTILITY FUNCTIONS
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+function getAge(dateString) {
+    var today = new Date()
+    var birthDate = new Date(dateString)
+    var age = today.getFullYear() - birthDate.getFullYear()
+    var m = today.getMonth() - birthDate.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--
+    }
+    return age
+}
+
+function getBirthday(age) {
+    var agems = age*365*24*60*60*1000
+    var today = new Date()
+    var birthDate = new Date(today.getTime() - agems)
+    return birthDate.getFullYear()+'-'+birthDate.getMonth()+'-'+birthDate.getDate()
+}
+
 
 // function findAllProfiles (column, value) {
     
