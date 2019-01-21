@@ -12,20 +12,22 @@ const db = require('../models')
 
 const email = 'gmcilhatton0@google.ca'
 
-const myUserId = 66
+getListOfProfiles(66)
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-findProfileById(myUserId)
-    .then(function(myData){return filterProfilesByPreferences(myData)})
-        .then(function(resultArray){
-            resultArray.forEach(function (object) {
-                console.log(object.f_name, object.l_name, object.gender, object.birthday,object.city)
+function getListOfProfiles (myUserId){
+    findProfileById(myUserId)
+        .then(function(myData){return filterProfilesByPreferences(myData)})
+            .then(function(resultArray){
+                resultArray.forEach(function (object) {
+                    console.log(object.f_name, object.l_name, object.gender, object.birthday,object.city)
+                })
             })
-        })
+}
 
 function findProfileById (id) {
     return db.profiledata.findOne({
@@ -40,14 +42,20 @@ function filterProfilesByPreferences(myData){
     console.log('My name is',myData.f_name, myData.l_name, ', I am a',myAge,'year old',myData.gender,'living in',myData.city,'and I am looking for a',myData.pref_gender,'born between the dates of',oldestBirthdate,'and',newestBirthdate)
     
     // Create Gender Arrays
-    const myGenderArr = [myData.gender, 'B']
+    var myGenderArr
+    if (myData.gender=='B'){
+        myGenderArr = ['M','F','B']
+    } else {
+        myGenderArr = [myData.gender, 'B']
+    }
     var prefGenderArr
     if (myData.pref_gender=='B') {
         prefGenderArr=['M','F','B']
     } else {
         prefGenderArr=[myData.pref_gender]
     }
-    
+    console.log(myGenderArr, prefGenderArr)
+
     // Run Sequelize Query to find users that match my preferences and I match theirs
     return db.profiledata.findAll({
         where: {
