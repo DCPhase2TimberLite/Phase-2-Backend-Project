@@ -35,9 +35,9 @@ findProfileById(myUserId)
     .then(function(myData){return filterProfilesByPreferences(myData)})
         .then(function(resultArray){
             resultArray.forEach(function (object) {
-            console.log(object.f_name, object.l_name, object.gender, object.birthday,object.city)
+                console.log(object.f_name, object.l_name, object.gender, object.birthday,object.city)
+            })
         })
-    })
 
 function findProfileById (id) {
     return db.profiledata.findOne({
@@ -49,6 +49,7 @@ function filterProfilesByPreferences(myData){
     const myAge = getAge(myData.birthday)
     const pref_min_birthdate = getBirthday(myData.pref_age_min)
     const pref_max_birthdate = getBirthday(myData.pref_age_max)
+    console.log(myData.f_name, myData.l_name)
     console.log(myData.gender, myData.pref_gender)
     console.log(myAge)
     console.log(myData.pref_age_min, myData.pref_age_max)
@@ -65,13 +66,14 @@ function filterProfilesByPreferences(myData){
     }
     console.log(myGenderArr, prefGenderArr)
     
-    // Run Sequelize Query
+    // Run Sequelize Query to find users that match my preferences and I match theirs
     return db.profiledata.findAll({
         where: {
             city: myData.city,
             gender: {
                 [or]: [prefGenderArr]
             },
+            birthday: {$between: [pref_max_birthdate,pref_min_birthdate]},
             pref_gender: {
                 [or]: [myGenderArr]
             }, 
@@ -107,7 +109,7 @@ function getBirthday(age) {
     var agems = age*365*24*60*60*1000
     var today = new Date()
     var birthDate = new Date(today.getTime() - agems)
-    return birthDate.getFullYear()+'-'+birthDate.getMonth()+'-'+birthDate.getDate()
+    return birthDate.getFullYear()+'-'+(1+birthDate.getMonth())+'-'+birthDate.getDate()
 }
 
 
