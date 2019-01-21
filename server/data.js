@@ -1,9 +1,39 @@
+'use strict'
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE SETUP
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const Sequelize = require('sequelize')
 const {or, and, gt, gte, lt, lte, ne, in:opIn} = Sequelize.Op
 const db = require('../models')
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                        EXPORTS
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+module.exports = {
+    getListOfProfiles: (myUserId) => {
+        return findProfileById(myUserId)
+            .then(function(myData){return filterProfilesByPreferences(myData)})
+                .then(function(resultArray){
+                    resultArray.forEach(function (object) {
+                        object.age = getAge(object.birthday)
+                        console.log(object.f_name, object.l_name, object.gender, object.age, object.birthday,object.city)
+                    })
+                    return resultArray[0]
+                })
+                
+    },
+    getProfileById: (myUserId) => {
+        return findProfileById(myUserId)
+    },
+    getMatches: (myUserId) => {
+        // Get user's matches
+    },
+    createALikeDBEntry: (myUserId, theirUserId, like) => {
+        // 
+    }
+}
+
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -12,27 +42,22 @@ const db = require('../models')
 
 const email = 'gmcilhatton0@google.ca'
 
-getListOfProfiles(71)
+// getListOfProfiles(66)
+
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-function getListOfProfiles (myUserId){
-    findProfileById(myUserId)
-        .then(function(myData){return filterProfilesByPreferences(myData)})
-            .then(function(resultArray){
-                resultArray.forEach(function (object) {
-                    console.log(object.f_name, object.l_name, object.gender, object.birthday,object.city)
-                })
-            })
-}
-
 function findProfileById (id) {
     return db.profiledata.findOne({
         where: {userid:id}
     })
+        .then(function(userData){
+            userData.age = getAge(userData.birthday)
+            return userData
+        })
 }
 
 function filterProfilesByPreferences(myData){
@@ -102,6 +127,8 @@ function getBirthday(age) {
     var birthDate = new Date(today.getTime() - agems)
     return birthDate.getFullYear()+'-'+(1+birthDate.getMonth())+'-'+birthDate.getDate()
 }
+
+
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
