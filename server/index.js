@@ -3,6 +3,7 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const Sequelize = require('sequelize')
 const db = require('../models')
+const data = require('./data')
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      EXPRESS SETUP
@@ -111,15 +112,28 @@ function (accessToken, refreshToken, profile, cb) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 app.get('/', function (req, res) {
-  res.send(buildWelcomeHTML())
+    res.send(buildWelcomeHTML())
 })
 
 app.post('/', function (req, res) {
-  res.send(buildMyProfileHTML())
+    res.send(buildMyProfileHTML())
 })
 
+app.get('/app', function (req, res) {
+    getListOfProfiles(66) // replace with user ID
+    res.send(buildAppHTML())
+})
 
-// ~~~~~~~~~~~~~~~~~~~~~~FACEBOOK ROUTES~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+app.get('/myProfile', function (req, res) {
+    res.send(buildMyProfileHTML())
+})
+  
+app.post('/myProfile', function (req, res) {
+})
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      OAUTH ROUTES
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 app.get('/auth/facebook',
   passport.authenticate('facebook'))
 
@@ -138,23 +152,13 @@ app.post('/register', passport.authenticate('register-local', { failureRedirect:
 app.get('/error', (req, res) => res.send('error logging in'))
 app.get('/error2', (req, res) => res.send('error creating account'))
 
-app.get('/myProfile', function (req, res) {
-  res.send(buildMyProfileHTML())
-})
 
-app.post('/myProfile', function (req, res) {
-
-})
-
-app.get('/app', function (req, res) {
-  res.send(buildAppHTML())
-})
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~auth logout~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~auth logout~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 app.get('/logout', function(req, res){
     req.logout();
     res.redirect('/');
 });
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      HTML Templating
