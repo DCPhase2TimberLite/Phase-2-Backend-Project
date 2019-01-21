@@ -8,7 +8,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      userid: {
+      userid_A: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
@@ -16,13 +16,17 @@ module.exports = {
           key: 'id'
         }
       },
-      liked_userid: {
+      userid_B: {
         allowNull: false,
         type: Sequelize.INTEGER,
         references: {
           model: 'accounts',
           key: 'id'
         }
+      },
+      liked: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
       },
       createdAt: {
         allowNull: false,

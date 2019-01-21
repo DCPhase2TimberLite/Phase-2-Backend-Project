@@ -12,7 +12,7 @@ const db = require('../models')
 
 const email = 'gmcilhatton0@google.ca'
 
-getListOfProfiles(66)
+getListOfProfiles(71)
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
