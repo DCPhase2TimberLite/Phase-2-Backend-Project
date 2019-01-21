@@ -10,19 +10,7 @@ const db = require('../models')
 //                      OFFLINE TESTS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-userEmail = 'gmcilhatton0@google.ca'
-
-// findAccountByEmail(userEmail)
-//     .then(function(user){
-//         console.log(user.id)
-//         return findProfileById(user.id)
-//     })
-//     .then(function(profile){
-//         // console.log(profile)
-//         console.log(profile.userid)
-//         console.log(profile.f_name)
-//         console.log(profile.l_name)
-//     })
+const email = 'gmcilhatton0@google.ca'
 
 const myUserId = 66
 
@@ -49,12 +37,7 @@ function filterProfilesByPreferences(myData){
     const myAge = getAge(myData.birthday)
     const pref_min_birthdate = getBirthday(myData.pref_age_min)
     const pref_max_birthdate = getBirthday(myData.pref_age_max)
-    console.log(myData.f_name, myData.l_name)
-    console.log(myData.gender, myData.pref_gender)
-    console.log(myAge)
-    console.log(myData.pref_age_min, myData.pref_age_max)
-    console.log(pref_min_birthdate, pref_max_birthdate)
-    console.log(myData.city)
+    console.log('My name is',myData.f_name, myData.l_name, ', I am a',myAge,'year old',myData.gender,'living in',myData.city,'and Im looking for a',myData.pref_gender,'born between the dates of',pref_max_birthdate,'and',pref_min_birthdate)
     
     // Create Gender Arrays
     const myGenderArr = [myData.gender, 'B']
@@ -64,7 +47,6 @@ function filterProfilesByPreferences(myData){
     } else {
         prefGenderArr=[myData.pref_gender]
     }
-    console.log(myGenderArr, prefGenderArr)
     
     // Run Sequelize Query to find users that match my preferences and I match theirs
     return db.profiledata.findAll({
@@ -78,7 +60,8 @@ function filterProfilesByPreferences(myData){
                 [or]: [myGenderArr]
             }, 
             pref_age_min: {[lte]:myAge},
-            pref_age_max: {[gte]:myAge}
+            pref_age_max: {[gte]:myAge},
+            userid: {[ne]:myData.userid}
         }
     })
 }
@@ -111,12 +94,6 @@ function getBirthday(age) {
     var birthDate = new Date(today.getTime() - agems)
     return birthDate.getFullYear()+'-'+(1+birthDate.getMonth())+'-'+birthDate.getDate()
 }
-
-
-// function findAllProfiles (column, value) {
-    
-//     db.profiledata.findAll({where: })
-// }
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
