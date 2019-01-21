@@ -119,13 +119,26 @@ app.post('/', function (req, res) {
     res.send(buildMyProfileHTML())
 })
 
-app.get('/app', function (req, res) {
-    getListOfProfiles(66) // replace with user ID
-    res.send(buildAppHTML())
+app.get('/app/', function (req, res) {
+    res.send('No User ID')
+})
+
+app.get('/app/:id', function (req, res) {
+    data.getListOfProfiles(req.params.id)
+        .then(function(results){
+            res.send(buildAppHTML(results))
+        })
 })
 
 app.get('/myProfile', function (req, res) {
-    res.send(buildMyProfileHTML())
+    res.send('No User ID')
+})
+
+app.get('/myProfile/:id', function (req, res) {
+    data.getProfileById(req.params.id)
+        .then(function(result){
+            res.send(buildMyProfileHTML(result))
+        })
 })
   
 app.post('/myProfile', function (req, res) {
@@ -273,14 +286,8 @@ function buildWelcomeHTML () {
 }
 
 function buildAppHTML (user) {
-  user = {
-    name: 'test name',
-    age: 25,
-    bio: 'bjkalsdhjklhsjl asjdfklsahjdfk hasjkfl hsjakd lfhjakl dfhjska fdhjska dasjfks',
-    ID: 'testUserID',
-    picture: defaultPhoto
-  }
-  // if (user.picture == "N/A"){user.picture = defaultPhoto}
+
+  if (user.profile_picture == "N/A"){user.profile_picture = defaultPhoto}
 
   return `
     <!DOCTYPE html>
@@ -310,20 +317,22 @@ function buildAppHTML (user) {
             <!-- Main Content -->
             <div class="main-content">
                     <div class="card profile-card">
-                        <img class="card-img-top" src="${user.picture}" alt="Card image cap">
+                        <object class="card-img-top" data="${user.profile_picture}" type="image/png">
+                            <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
+                        </object>
                         <div class="card-body">
                             <div class="d-flex justify-content-between" id="card-header">
-                                <div class="card-title" id="profile-name">${user.name}</div>
+                                <div class="card-title" id="profile-name">${user.f_name}</div>
                                 <div class="card-title" id="profile-age">${user.age}</div>
                             </div>
                         <p class="card-text">${user.bio}</p>
 
                         <form action="/app_reaction/" method="post" id="currentProfile">
-                            <input type="text" name="UserID" value="${user.ID}" style="display:none;">
+                            <input type="text" name="UserID" value="${user.userid}" style="display:none;">
                         </form>
                         <div class="d-flex justify-content-between" id="card-reactions">
-                            <button type="submit" name="response" value="dislike" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
-                            <button type="submit" name="response" value="like" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></button>
+                            <button type="submit" name="liked" value="false" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
+                            <button type="submit" name="liked" value="true" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></button>
                         </div>
                         </div>
                     </div>
@@ -339,14 +348,7 @@ function buildAppHTML (user) {
     `
 }
 
-function buildMyProfileHTML () {
-    user = {
-        name: 'test name',
-        age: 25,
-        bio: 'bjkalsdhjklhsjl asjdfklsahjdfk hasjkfl hsjakd lfhjakl dfhjska fdhjska dasjfks',
-        ID: 'testUserID',
-        picture: defaultPhoto
-    }
+function buildMyProfileHTML (user) {
     return `
     <!DOCTYPE html>
     <html lang="en">
@@ -382,18 +384,18 @@ function buildMyProfileHTML () {
                             <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
                             <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
                             <option selected>Choose one</option>
-                            <option value="1">Men &#9794;</option>
-                            <option value="2">Women &#9792;</option>
-                            <option value="3">Both</option>
+                            <option value="M">Men &#9794;</option>
+                            <option value="F">Women &#9792;</option>
+                            <option value="B">Both</option>
                             </select>
                         </div>
 
                         <div class="form-row">
                                 <div class="col">
-                                    <input type="integer" class="form-control" id="age-min" placeholder="Minimum Age">
+                                    <input type="integer" class="form-control" id="age-min" placeholder="${user.pref_age_min}">
                                 </div>
                                 <div class="col">
-                                    <input type="integer" class="form-control" id="age-max" placeholder="Maximum Age">
+                                    <input type="integer" class="form-control" id="age-max" placeholder="${user.pref_age_max}">
                                 </div>
                         </div>
 
@@ -405,21 +407,21 @@ function buildMyProfileHTML () {
                     <h3 style="text-align:center;">Timber - Fall in <i class="far fa-heart"></i></h3>
                     
                     <div class="card profile-card">
-                        <!-- <img class="card-img-top" src="profile.png" alt="Card image cap"> -->
-                        <img class="card-img-top" src="${user.picture}" alt="Card image cap">
+                        <object class="card-img-top" data="${user.profile_picture}" type="image/png">
+                            <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
+                        </object>
                         <div class="card-body">
                             <div class="d-flex justify-content-between" id="card-header">
-                                <div class="card-title" id="profile-name">${user.name}</div>
+                                <div class="card-title" id="profile-name">${user.f_name}</div>
                                 <div class="card-title" id="profile-age">${user.age}</div>
                             </div>
                         
                         <form method="post" action="/myProfile">
                         <div class="input-group">
                             <div class="input-group-prepend">
-                            <span class="input-group-text">About you:</span>
+                                <span class="input-group-text">About Me:</span>
                             </div>
-                            <textarea class="form-control" aria-label="With textarea"></textarea>
-
+                            <textarea class="form-control" aria-label="With textarea">${user.bio}</textarea>
                             <button type="button" class="btn-danger">Save</button>
                         </div>
                         </form>
