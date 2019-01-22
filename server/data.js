@@ -14,20 +14,25 @@ module.exports = {
     getAccountByEmail: (myEmail) => {
         return findAccountByEmail(myEmail)
     },
-    getListOfProfiles: (myUserId) => {
-        return findListOfProfilesById(myUserId)
-    },
     getProfileById: (myUserId) => {
         return findProfileById(myUserId)
     },
+    getListOfProfiles: (myUserId) => {
+        return findListOfProfilesById(myUserId)
+    },
     getMatchesById: (myUserId) => {
-        // Get user's matches
+        return findMyMatchesById (myUserId)
     },
     createALikeDbEntry: (myUserId, theirUserId, liked) => {
         return upsertLike(myUserId, theirUserId, liked)
+        .then(() => {return isItAMatch(myUserId, theirUserId)})
+        .then((result) => {if(result.length==2){return [createMatches(myUserId, theirUserId),createMatches(theirUserId, myUserId)]}})
     },
     createProfileData: (profiledata, account) => {
         return createProfileData(profiledata, account)
+    },
+    createAllMatchesById: (myUserId) => {
+        return createAllMatchesById(myUserId)
     }
 }
 
@@ -36,23 +41,11 @@ module.exports = {
 //                      OFFLINE TESTS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// const email = 'gmcilhatton0@google.ca'
-
-// findListOfProfilesById(3)
-
-// findSeenProfiles(3)
-    // .then(function(result){console.log(result)})
-
-// upsertLike(500, 300, false)
-
-// findMyLikesById (3).then((result) => console.log(result)) // works
-// findReflexLikesById (3).then((result) => console.log(result)) // works
-// findReflexLikesById (2).then((result) => {createMatches(result)}) // working
+// createAllMatchesById(myUserId).then((result) => {console.log(result)}) // Run this to populate matches data
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 function findAccountByEmail (email) {
     return db.account.findOne({
         where: {email:email}
@@ -65,6 +58,23 @@ function findProfileById (id) {
             userData.age = getAge(userData.birthday)
             return userData
         })
+}
+
+function findMyLikesById (myUserId) {
+    return db.like.findAll({
+        where: {
+            userid_A:myUserId,
+            liked: true
+        }
+    })  
+}
+
+function findMyMatchesById (myUserId) {
+    return db.matches.findAll({
+        where: {
+            userid_A: myUserId
+        }
+    })  
 }
 
 function findSeenProfilesById (myUserId) {
@@ -82,42 +92,6 @@ function findSeenProfilesById (myUserId) {
     })
 }
 
-// Building vvvvvvv
-function findMyLikesById (myUserId) {
-    return db.like.findAll({
-        where: {
-            userid_A:myUserId,
-            liked: true
-        }
-    })  
-}
-
-function findReflexLikesById (myUserId) {
-    return findMyLikesById(myUserId)
-    .then((resultArray) => {
-        var userBArray = []
-        resultArray.forEach((object) => {
-            userBArray.push(object.userid_B)
-        })
-        return userBArray
-    })
-    .then ((resultBArray) => {
-        return db.like.findAll({
-            where: {
-                userid_A:resultBArray,
-                userid_B:myUserId,
-                liked: true
-            }
-        })
-    })
-    .then ((result) => {return likesResultToArray(result)})
-}
-
-function createMatches (entries) {
-    return db.matches.bulkCreate(entries, {ignoreDuplicates:true})
-}
-// Building ^^^^^^^
-
 function findListOfProfilesById (myUserId){
     return findProfileById(myUserId)
             .then((myData) => {
@@ -127,7 +101,7 @@ function findListOfProfilesById (myUserId){
             .then((resultArray) => {
                 resultArray.forEach((object) => {
                     object.age = getAge(object.birthday)
-                    console.log(object.f_name, object.l_name, object.gender, object.age, object.birthday,object.city)
+                    console.log(object.userid, object.f_name, object.l_name, object.gender, object.age, object.birthday,object.city)
                 })
                 return resultArray[0]
             })
@@ -175,7 +149,6 @@ function filterProfilesByPreferences(myData, seenArr){
     })
 }
 
-
 function createProfileData(profiledata, account){
     db.profiledata.create({
         userid: account.id,
@@ -184,6 +157,13 @@ function createProfileData(profiledata, account){
         //     //profile_picture: userProfile.profile_picture
         birthday: profiledata.birthday
     })
+}
+
+function createMatches (myUserId, theirUserId){
+    return db.matches.create({
+        userid_A: myUserId,
+        userid_B: theirUserId
+    }, {ignoreDuplicates:true})
 }
 
 function upsertLike(myUserId, theirUserId, liked) {
@@ -208,11 +188,49 @@ function upsertLike(myUserId, theirUserId, liked) {
         })
     }
 
+function isItAMatch (myUserId, theirUserId){
+    return db.like.findAll({
+        where: {
+            userid_A: [myUserId, theirUserId],
+            userid_B: [myUserId, theirUserId]
+        }
+    })
+}
+
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                BULK SEQUELIZE FUNCTIONS
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function createAllMatchesById (myUserId) {
+    return findMyLikesById(myUserId)
+    .then((resultArray) => {
+        var userBArray = []
+        resultArray.forEach((object) => {
+            userBArray.push(object.userid_B)
+        })
+        return userBArray
+    })
+    .then ((resultBArray) => {
+        return db.like.findAll({
+            where: {
+                userid_A:resultBArray,
+                userid_B:myUserId,
+                liked: true
+            }
+        })
+    })
+    .then ((result) => {return likesResultToArray(result)})
+    .then ((result) => {return createBulkMatches(result)})
+}
+
+function createBulkMatches (entries) {
+    return db.matches.bulkCreate(entries, {ignoreDuplicates:true})
+}
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                UTILITY FUNCTIONS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 function getAge(dateString) {
     var today = new Date()
     var birthDate = new Date(dateString)
