@@ -46,12 +46,12 @@ passport.use('login-local', new LocalStrategy(function (email, password, done) {
     data.getAccountByEmail(email)
         .then(function (user) {
             if (!user) {
-            console.log('account not found')
-            return done(null, false)
+                console.log('account not found')
+                return done(null, false)
             }
             if (user.pass != password) {
-            console.log('!=pass')
-            return done(null, false)
+                console.log('!=pass')
+                return done(null, false)
             }
             console.log('success')
             return done(null, user)
@@ -84,72 +84,19 @@ const FACEBOOK_APP_ID = '2188899751372256'
 const FACEBOOK_APP_SECRET = '0092f4fc9e900f72929fc85c3061737b'
 
 passport.use(new FacebookStrategy({
-  clientID: FACEBOOK_APP_ID,
-  clientSecret: FACEBOOK_APP_SECRET,
-  callbackURL: '/auth/facebook/callback'
+    clientID: FACEBOOK_APP_ID,
+    clientSecret: FACEBOOK_APP_SECRET,
+    callbackURL: '/auth/facebook/callback'
 },
-function (accessToken, refreshToken, profile, cb) {
-  return cb(null, profile)
-}
+    function (accessToken, refreshToken, profile, cb) {
+        return cb(null, profile)
+    }
 ))
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//                      EXPRESS ROUTING
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-app.get('/', function (req, res) {
-    res.send(buildWelcomeHTML())
-})
-
-app.post('/', function (req, res) {
-    res.send(buildMyProfileHTML())
-})
-
-app.get('/app/', function (req, res) {
-    res.send('No User ID')
-})
-
-app.get('/app/:id', function (req, res) {
-    data.getListOfProfiles(req.params.id)
-        .then(function(results){
-            res.send(buildAppHTML(req.params.id, results))
-        })
-})
-
-app.get('/myProfile', function (req, res) {
-    res.send('No User ID')
-})
-
-app.get('/myProfile/:id', function (req, res) {
-    data.getProfileById(req.params.id)
-        .then(function(result){
-            res.send(buildMyProfileHTML(result))
-        })
-})
-  
-app.post('/myProfile', function (req, res) {
-})
-
-app.post('/app_reaction', function (req, res) {
-    console.log(req.body)
-    data.createALikeDBEntry(req.body.myuserID, req.body.theiruserID, req.body.liked)
-    .then(res.redirect('/app/'+req.body.myuserID))
-})
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      OAUTH ROUTES
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app.get('/auth/facebook',
-    passport.authenticate('facebook'))
-
-app.get('/auth/facebook/callback',passport.authenticate('facebook', { failureRedirect: '/error' }),function (req, res) {
-    res.redirect('/app/'+req.user.id)
-  })
-
-app.post('/login', passport.authenticate('login-local', { failureRedirect: '/error' }), function(req, res) {
-    res.redirect('/app/'+req.user.id)
-})
-
+// Register
 app.post('/register', passport.authenticate('register-local', { failureRedirect: '/error2' }), function(req, res) {
     var profiledata = req.body
     var account = req.user
@@ -158,18 +105,92 @@ app.post('/register', passport.authenticate('register-local', { failureRedirect:
     res.redirect('/myProfile/'+account.id)
 })
 
-app.get('/error', (req, res) => res.send('error logging in'))
-app.get('/error2', (req, res) => res.send('error creating account'))
+// Login
+app.post('/login', passport.authenticate('login-local', { failureRedirect: '/error' }), function(req, res) {
+    res.redirect('/app/'+req.user.id)
+})
 
+// Facebook
+app.get('/auth/facebook',passport.authenticate('facebook'))
+app.get('/auth/facebook/callback',passport.authenticate('facebook', { failureRedirect: '/error' }),function (req, res) {
+    res.redirect('/app/'+req.user.id)
+})
 
-//~~~~~~~~~~~~~~~~~~~~~~~auth logout~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Logout
 app.post('/logout', function(req, res){
     req.logout();
     res.redirect('/');
 });
 
-//~~~~~~~~~~~~~~~~~~~~~~~matches on myapp page~~~~~~~~~~~~~~~~~~~~~~~~~~~
-var arrayOfMatches = "[]";
+// Errors
+app.get('/error', (req, res) => res.send('error logging in'))
+app.get('/error2', (req, res) => res.send('error creating account'))
+
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      EXPRESS ROUTING
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Welcome
+app.get('/', function (req, res) {
+    res.send(buildWelcomeHTML())
+})
+
+app.post('/', function (req, res) {
+    res.send(
+        buildHeaderHTML()+
+        buildMyProfileHTML()+
+        buildFooterHTML()
+    )
+})
+
+// My Profile
+app.get('/myProfile', function (req, res) {
+    res.send('No User ID')
+})
+
+app.get('/myProfile/:id', function (req, res) {
+    data.getProfileById(req.params.id)
+        .then(function(result){
+            res.send(
+                buildHeaderHTML()+
+                buildMyProfileHTML(result)+
+                buildFooterHTML()
+            )
+        })
+})
+  
+app.post('/myProfile', function (req, res) {
+})
+
+// App
+app.get('/app/', function (req, res) {
+    res.send('No User ID')
+})
+
+app.get('/app/:id', function (req, res) {
+    data.getListOfProfiles(req.params.id)
+        .then(function(results){
+            res.send(
+                buildHeaderHTML()+
+                buildAppHTML(req.params.id, results)+
+                buildFooterHTML()
+            )
+        })
+})
+
+app.post('/app_reaction', function (req, res) {
+    console.log(req.body)
+    data.createALikeDBEntry(req.body.myuserID, req.body.theiruserID, req.body.liked)
+    .then(res.redirect('/app/'+req.body.myuserID))
+})
+
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      HTML Templating
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+const defaultPhoto = '/style/profile.png'
+var arrayOfMatches = []
 
 function createMatchesHTML(arrayOfMatches) {
     for (var i = 0; i < arrayOfMatches.length; i++) {
@@ -177,11 +198,40 @@ function createMatchesHTML(arrayOfMatches) {
     }
 }
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//                      HTML Templating
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function buildHeaderHTML () {
+    return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-const defaultPhoto = '/style/profile.png'
+    <!-- CSS stylesheets -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/style/style.css">
+
+    <!-- Icons CDN -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+
+    <!-- Title-bar Icon -->
+    <link rel="shortcut icon" type="image/png" href="/public/style/flame.png" />
+    <title>Timber | Fall in "Like"</title>
+
+    </head>
+    `
+}
+
+function buildFooterHTML () {
+    return `
+    <!-- Bootstrap scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    </body>
+    </html>
+    `
+}
 
 function buildWelcomeHTML () {
   return `
@@ -204,8 +254,6 @@ function buildWelcomeHTML () {
         </div>
         <input type='checkbox' id='form-switch'>
 
-
-
         <form class="form-signin" id='login-form' action="/login" method="post">
             <div class="form-label-group">
                 <input type="email" id="inputEmail" name="username" class="form-control" placeholder="Email address" autofocus>
@@ -217,9 +265,6 @@ function buildWelcomeHTML () {
             <button class="btn btn-lg btn-primary btn-block action-button"><a href=auth/facebook>Sign in with Facebook</a></button>
             <button type="button" class="btn btn-lg btn-primary btn-block"><label for='form-switch'><span>Register</span></label></button>
         </form>
-
-
-
 
         <form id="register-form" class="center-div form-signin" style="width: 65%; max-width: 80%;" action="/register" method="post">
           <div id="header" class="form-group centered-stuff form-label-group">
@@ -289,34 +334,15 @@ function buildWelcomeHTML () {
 `
 }
 
-function buildAppHTML (myuserid, user) {
-    if (!user){
-        user = {}
-    }
-  if (user.profile_picture == "N/A"){user.profile_picture = defaultPhoto}
+function buildAppHTML (myuserid, user, arrayOfMatches) {
+    if (!user){user = {}}
+    if (user.profile_picture == ''||'N/A'||null){user.profile_picture = defaultPhoto}
 
-  return `
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  
-  <!-- CSS stylesheets -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
-  <link rel="stylesheet" type="text/css" href="/style/style.css">
-  
-  <!-- Icons CDN -->
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-  <title>Timber: Fall in "Like"</title>
-
-  <!-- Title-bar Icon -->
-  <link rel="shortcut icon" type="image/png" href="/public/style/flame.png" />
-
-  </head>
-  <body>
+    // @Audry
+    // Copy the section of html in the return statement below that builds the 'Match Card' and put it in the creatMatchesHTML function
+    // Call the creatMatchesHTML function from inside the return statement below using ${createMatchesHTML(arrayOfMatches)}
+    return `
+    <body>
       <div class="container-fluid">
           <div class="row">
               <div class="sidenav">
@@ -361,36 +387,11 @@ function buildAppHTML (myuserid, user) {
   
           </div>
       </div>
-      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  </body>
-  </html>
     `
 }
 
 function buildMyProfileHTML (user) {
     return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-
-
-    <!-- CSS stylesheets -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/style/style.css">
-    
-    <!-- Icons CDN -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-    
-    <!-- Title-bar Icon -->
-    <link rel="shortcut icon" type="image/png" href="/public/style/flame.png" />
-
-        <title>Timber | Fall in "Like"</title>
-    </head>
     <body style="background-color:#686868">
         <div class="container-fluid">
             <div class="row">
@@ -465,11 +466,5 @@ function buildMyProfileHTML (user) {
         </div>
 
     </div> 
-    <!-- Bootstrap scripts -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-</body>
-</html>
     `
 }
