@@ -24,7 +24,6 @@ module.exports = {
         // Get user's matches
     },
     createALikeDBEntry: (myUserId, theirUserId, liked) => {
-        console.log(myUserId, theirUserId, liked)
         return upsertLike(myUserId, theirUserId, liked)
     },
     createProfileData: (profiledata, account) => {
@@ -44,7 +43,7 @@ module.exports = {
 // findSeenProfiles(3)
     // .then(function(result){console.log(result)})
 
-// upsertLike(500, 300, false)
+upsertLike(500, 300, false)
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
@@ -169,7 +168,7 @@ function upsertLike(myUserId, theirUserId, liked) {
                 })
             }
         })
-
+    }
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -220,4 +219,4 @@ function getBirthday(age) {
 //     results.forEach(function(index){
 //             console.log(index.userid, index.f_name, index.l_name);
 //         })
-//   });
+//   })
