@@ -24,6 +24,7 @@ module.exports = {
         // Get user's matches
     },
     createALikeDBEntry: (myUserId, theirUserId, liked) => {
+        console.log(myUserId, theirUserId, liked)
         return upsertLike(myUserId, theirUserId, liked)
     },
     createProfileData: (profiledata, account) => {
