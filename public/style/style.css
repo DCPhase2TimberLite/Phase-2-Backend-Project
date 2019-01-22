@@ -62,3 +62,17 @@
 #dislike-btn {
     color: rgb(255, 110, 57);
 }
+
+.bottom-left {
+    position: absolute;
+    bottom: 8px;
+    left: 16px;
+    color: #000;
+  }
+
+.top-right {
+    position: absolute;
+    top: 8px;
+    right: 16px;
+    color: #000;
+}

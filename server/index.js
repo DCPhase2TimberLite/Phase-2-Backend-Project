@@ -152,7 +152,7 @@ app.get('/error2', (req, res) => res.send('error creating account'))
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~auth logout~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app.get('/logout', function(req, res){
+app.post('/logout', function(req, res){
     req.logout();
     res.redirect('/');
 });
@@ -275,61 +275,71 @@ function buildAppHTML (user) {
   if (user.profile_picture == "N/A"){user.profile_picture = defaultPhoto}
 
   return `
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
-
-<!-- CSS stylesheets -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
-<link rel="stylesheet" type="text/css" href="/style/style.css">
-
-<!-- Icons CDN -->
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-<title>Timber: Fall in "Like"</title>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="sidenav">
-                <a href="/myProfile"><h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5></a>
-                <p style="text-align:center; background-color:#ff5050;;">Matches</p>
-            </div>
-            
-            <!-- Main Content -->
-            <div class="main-content">
-                    <div class="card profile-card">
-                        <object class="card-img-top" data="${user.profile_picture}" type="image/png">
-                            <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
-                        </object>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between" id="card-header">
-                                <div class="card-title" id="profile-name">${user.f_name}</div>
-                                <div class="card-title" id="profile-age">${user.age}</div>
-                            </div>
-                        <p class="card-text">${user.bio}</p>
-
-                        <form action="/app_reaction/" method="post" id="currentProfile">
-                            <input type="text" name="UserID" value="${user.userid}" style="display:none;">
-                        </form>
-                        <div class="d-flex justify-content-between" id="card-reactions">
-                            <button type="submit" name="liked" value="false" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
-                            <button type="submit" name="liked" value="true" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></button>
-                        </div>
-                        </div>
-                    </div>
-            </div>
-
-        </div>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-</body>
-</html>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  
+  <!-- CSS stylesheets -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+  <link rel="stylesheet" type="text/css" href="/style/style.css">
+  
+  <!-- Icons CDN -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <title>Timber: Fall in "Like"</title>
+  </head>
+  <body>
+      <div class="container-fluid">
+          <div class="row">
+              <div class="sidenav">
+                  <form class="form-signout" id='logout-form' action="/logout" method="post">  
+                      <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
+                  </form><br />
+                  <a href="/myProfile"><h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5></a>
+                  <p style="text-align:center; background-color:#ff5050;;">Matches</p><br />
+  
+                  <div class="card" style="width: 30%; height: 20%;">
+                      <img class="card-img-top" src="${user.profile_picture}" alt="User Photo">
+                      <div class="bottom-left">${user.f_name}</div>
+                      <div class="top-right">${user.age}</div>
+                  </div>
+  
+              </div>
+              
+              <!-- Main Content -->
+              <div class="main-content">
+                      <div class="card profile-card">
+                          <object class="card-img-top" data="${user.profile_picture}" type="image/png">
+                              <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
+                          </object>
+                          <div class="card-body">
+                              <div class="d-flex justify-content-between" id="card-header">
+                                  <div class="card-title" id="profile-name">${user.f_name}</div>
+                                  <div class="card-title" id="profile-age">${user.age}</div>
+                              </div>
+                          <p class="card-text">${user.bio}</p>
+  
+                          <form action="/app_reaction/" method="post" id="currentProfile">
+                              <input type="text" name="UserID" value="${user.userid}" style="display:none;">
+                          </form>
+                          <div class="d-flex justify-content-between" id="card-reactions">
+                              <button type="submit" name="liked" value="false" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
+                              <button type="submit" name="liked" value="true" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></button>
+                          </div>
+                          </div>
+                      </div>
+              </div>
+  
+          </div>
+      </div>
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+  </html>
     `
 }
 
@@ -361,6 +371,11 @@ function buildMyProfileHTML (user) {
                 <div class="sidenav" style="background-color:#f9f3f2;">
                     <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   My Profile</h5>
                     <a href="/app"><button>Back</button></a>
+
+                    <form class="form-signout" id='logout-form' action="/logout" method="post">  
+                        <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
+                    </form>
+
                     <p style="text-align:center; background-color:#ff5050;">Preferences</p>
                     
                     <form method="post" action="/myProfile">
@@ -384,8 +399,9 @@ function buildMyProfileHTML (user) {
                                 </div>
                         </div>
 
-                        <input type="submit" class="btn-block" data-inline="true" value="Submit">
+                        <input type="submit" class="btn-block btn-danger" data-inline="true" value="Submit">
                         </form><hr />
+                        
 
                 </div>
                 <div class="main-content">
