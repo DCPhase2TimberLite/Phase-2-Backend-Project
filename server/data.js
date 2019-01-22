@@ -26,8 +26,8 @@ module.exports = {
     createALikeDBEntry: (myUserId, theirUserId, liked) => {
         return upsertLike(myUserId, theirUserId, liked)
     },
-    createProfileData: (account, profiledata) => {
-        return createProfileData(account, profiledata)
+    createProfileData: (profiledata, account) => {
+        return createProfileData(profiledata, account)
     }
 }
 
