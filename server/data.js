@@ -3,27 +3,19 @@
 //                      SEQUELIZE SETUP
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const Sequelize = require('sequelize')
-const {or, and, gt, gte, lt, lte, ne, in:opIn} = Sequelize.Op
+const {or, and, gt, gte, lt, lte, ne, notIn, in:opIn} = Sequelize.Op
 const db = require('../models')
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                        EXPORTS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 module.exports = {
     getAccountByEmail: (myEmail) => {
         return findAccountByEmail(myEmail)
     },
     getListOfProfiles: (myUserId) => {
-        return findProfileById(myUserId)
-            .then(function(myData){return filterProfilesByPreferences(myData)})
-                .then(function(resultArray){
-                    resultArray.forEach(function (object) {
-                        object.age = getAge(object.birthday)
-                        console.log(object.f_name, object.l_name, object.gender, object.age, object.birthday,object.city)
-                    })
-                    return resultArray[0]
-                })
+        return findListOfProfiles(myUserId)
     },
     getProfileById: (myUserId) => {
         return findProfileById(myUserId)
@@ -31,8 +23,8 @@ module.exports = {
     getMatches: (myUserId) => {
         // Get user's matches
     },
-    createALikeDBEntry: (myUserId, theirUserId, like) => {
-        // 
+    createALikeDBEntry: (myUserId, theirUserId, liked) => {
+        return upsertLike(myUserId, theirUserId, liked)
     },
     createProfileData: (account, profiledata) => {
         return createProfileData(account, profiledata)
@@ -40,15 +32,18 @@ module.exports = {
 }
 
 
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      OFFLINE TESTS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-const email = 'gmcilhatton0@google.ca'
-// getListOfProfiles(66)
+// const email = 'gmcilhatton0@google.ca'
 
+// findListOfProfiles(3)
 
+// findSeenProfiles(3)
+    // .then(function(result){console.log(result)})
+
+upsertLike(500, 300, false)
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
@@ -68,7 +63,39 @@ function findProfileById (id) {
         })
 }
 
-function filterProfilesByPreferences(myData){
+function findSeenProfilesById (myUserId) {
+    return db.like.findAll({
+        where: {
+            userid_A:myUserId
+        }
+    })
+    .then(function(resultArray){
+        var userBArray = []
+        resultArray.forEach(function (object) {
+            userBArray.push(object.userid_B)
+            // console.log(userBArray)
+        })
+        return userBArray
+    })
+}
+
+function findListOfProfiles (myUserId){
+    return findProfileById(myUserId)
+            .then(function(myData){
+                return findSeenProfilesById(myData.userid)
+                .then(function(seenArr){return filterProfilesByPreferences(myData, seenArr)})
+            })
+            .then(function(resultArray){
+                resultArray.forEach(function (object) {
+                    object.age = getAge(object.birthday)
+                    console.log(object.f_name, object.l_name, object.gender, object.age, object.birthday,object.city)
+                })
+                return resultArray[0]
+            })
+}
+
+function filterProfilesByPreferences(myData, seenArr){
+    if(!seenArr){seenArr=[]}
     const myAge = getAge(myData.birthday)
     const newestBirthdate = getBirthday(myData.pref_age_min)
     const oldestBirthdate = getBirthday(myData.pref_age_max)
@@ -102,10 +129,14 @@ function filterProfilesByPreferences(myData){
             }, 
             pref_age_min: {[lte]:myAge},
             pref_age_max: {[gte]:myAge},
-            userid: {[ne]:myData.userid}
+            userid: {
+                [ne]:myData.userid,
+                [notIn]: seenArr
+            }
         }
     })
 }
+
 
 function createProfileData(profiledata, account){
     db.profiledata.create({
@@ -116,6 +147,29 @@ function createProfileData(profiledata, account){
     birthday: profiledata.birthday
     })
 }
+
+function upsertLike(myUserId, theirUserId, liked) {
+    return db.like
+        .findOne({ where: {
+            userid_A: myUserId,
+            userid_B: theirUserId
+        }})
+        .then(function(obj) {
+            if(obj) { // update
+                return obj.update({
+                    liked: liked
+                })
+            }
+            else { // insert
+                return db.like.create({
+                    userid_A: myUserId,
+                    userid_B: theirUserId,
+                    liked: liked
+                })
+            }
+        })
+
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                UTILITY FUNCTIONS
@@ -139,6 +193,7 @@ function getBirthday(age) {
     return birthDate.getFullYear()+'-'+(1+birthDate.getMonth())+'-'+birthDate.getDate()
 }
 
+  
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                SEQUELIZE REFERENCE QUERIES
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
