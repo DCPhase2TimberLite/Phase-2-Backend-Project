@@ -47,7 +47,7 @@ module.exports = {
 
 // findMyLikesById (3).then((result) => console.log(result)) // works
 // findReflexLikesById (3).then((result) => console.log(result)) // works
-findReflexLikesById (33).then((result) => {createMatches(result)}) // not working
+// findReflexLikesById (2).then((result) => {createMatches(result)}) // working
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
