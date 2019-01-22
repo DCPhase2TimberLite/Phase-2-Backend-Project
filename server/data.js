@@ -6,10 +6,10 @@ const Sequelize = require('sequelize')
 const {or, and, gt, gte, lt, lte, ne, notIn, in:opIn} = Sequelize.Op
 const db = require('../models')
 
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                        EXPORTS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 module.exports = {
     getAccountByEmail: (myEmail) => {
         return findAccountByEmail(myEmail)
@@ -23,11 +23,10 @@ module.exports = {
     getMatches: (myUserId) => {
         // Get user's matches
     },
-    createALikeDBEntry: (myUserId, theirUserId, like) => {
-        // 
+    createALikeDBEntry: (myUserId, theirUserId, liked) => {
+        return upsertLike(myUserId, theirUserId, liked)
     }
 }
-
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,6 +40,7 @@ module.exports = {
 // findSeenProfiles(3)
     // .then(function(result){console.log(result)})
 
+upsertLike(500, 300, false)
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
@@ -67,7 +67,6 @@ function findSeenProfilesById (myUserId) {
         }
     })
     .then(function(resultArray){
-        console.log('test 3')
         var userBArray = []
         resultArray.forEach(function (object) {
             userBArray.push(object.userid_B)
@@ -133,11 +132,29 @@ function filterProfilesByPreferences(myData, seenArr){
             }
         }
     })
-
 }
 
-
-
+function upsertLike(myUserId, theirUserId, liked) {
+    return db.like
+        .findOne({ where: {
+            userid_A: myUserId,
+            userid_B: theirUserId
+        }})
+        .then(function(obj) {
+            if(obj) { // update
+                return obj.update({
+                    liked: liked
+                })
+            }
+            else { // insert
+                return db.like.create({
+                    userid_A: myUserId,
+                    userid_B: theirUserId,
+                    liked: liked
+                })
+            }
+        })
+}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                UTILITY FUNCTIONS
@@ -160,8 +177,6 @@ function getBirthday(age) {
     var birthDate = new Date(today.getTime() - agems)
     return birthDate.getFullYear()+'-'+(1+birthDate.getMonth())+'-'+birthDate.getDate()
 }
-
-
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
