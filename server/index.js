@@ -143,11 +143,11 @@ app.get('/auth/facebook',
     passport.authenticate('facebook'))
 
 app.get('/auth/facebook/callback',passport.authenticate('facebook', { failureRedirect: '/error' }),function (req, res) {
-    res.redirect('/app')
+    res.redirect('/app/'+req.user.id)
   })
 
 app.post('/login', passport.authenticate('login-local', { failureRedirect: '/error' }), function(req, res) {
-    res.redirect('/app')
+    res.redirect('/app/'+req.user.id)
 })
 
 app.post('/register', passport.authenticate('register-local', { failureRedirect: '/error2' }), function(req, res) {
@@ -323,7 +323,7 @@ function buildAppHTML (myuserid, user) {
                   <form class="form-signout" id='logout-form' action="/logout" method="post">  
                       <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
                   </form><br />
-                  <a href="/myProfile"><h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5></a>
+                  <a href="/myProfile/${myuserid}"><h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5></a>
                   <p style="text-align:center; background-color:#ff5050;;">Matches</p><br />
   
                   <div class="card" style="width: 30%; height: 20%;">
