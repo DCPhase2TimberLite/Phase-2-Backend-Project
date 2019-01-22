@@ -3,7 +3,7 @@
 //                      SEQUELIZE SETUP
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const Sequelize = require('sequelize')
-const {or, and, gt, gte, lt, lte, ne, in:opIn} = Sequelize.Op
+const {or, and, gt, gte, lt, lte, ne, notIn, in:opIn} = Sequelize.Op
 const db = require('../models')
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -15,15 +15,7 @@ module.exports = {
         return findAccountByEmail(myEmail)
     },
     getListOfProfiles: (myUserId) => {
-        return findProfileById(myUserId)
-            .then(function(myData){return filterProfilesByPreferences(myData)})
-                .then(function(resultArray){
-                    resultArray.forEach(function (object) {
-                        object.age = getAge(object.birthday)
-                        console.log(object.f_name, object.l_name, object.gender, object.age, object.birthday,object.city)
-                    })
-                    return resultArray[0]
-                })
+        return findListOfProfiles(myUserId)
     },
     getProfileById: (myUserId) => {
         return findProfileById(myUserId)
@@ -44,8 +36,10 @@ module.exports = {
 
 const email = 'gmcilhatton0@google.ca'
 
-// getListOfProfiles(66)
+findListOfProfiles(3)
 
+// findSeenProfiles(3)
+    // .then(function(result){console.log(result)})
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -66,12 +60,44 @@ function findProfileById (id) {
         })
 }
 
-function filterProfilesByPreferences(myData){
+function findSeenProfiles (myUserId) {
+    return db.like.findAll({
+        where: {
+            userid_A:myUserId
+        }
+    })
+    .then(function(resultArray){
+        var userBArray = []
+        resultArray.forEach(function (object) {
+            userBArray.push(object.userid_B)
+            // console.log(userBArray)
+        })
+        return userBArray
+    })
+}
+
+function findListOfProfiles (myUserId){
+    return findProfileById(myUserId)
+    .then(function(myData){return [myData,findSeenProfiles(myData.userid)]})
+        .then(function(myDataAndSeenArr){return filterProfilesByPreferences(myDataAndSeenArr)})
+            .then(function(resultArray){
+                resultArray.forEach(function (object) {
+                    object.age = getAge(object.birthday)
+                    console.log(object.f_name, object.l_name, object.gender, object.age, object.birthday,object.city)
+                })
+                return resultArray[0]
+            })
+}
+
+function filterProfilesByPreferences(myDataAndSeenArr){
+    console.log(myDataAndSeenArr)
+    const myData = myDataAndSeenArr[0]
+    const seenArr = myDataAndSeenArr[1]
     const myAge = getAge(myData.birthday)
     const newestBirthdate = getBirthday(myData.pref_age_min)
     const oldestBirthdate = getBirthday(myData.pref_age_max)
     console.log('My name is',myData.f_name, myData.l_name, ', I am a',myAge,'year old',myData.gender,'living in',myData.city,'and I am looking for a',myData.pref_gender,'born between the dates of',oldestBirthdate,'and',newestBirthdate)
-    
+
     // Create Gender Arrays
     var myGenderArr
     if (myData.gender=='B'){
@@ -88,7 +114,7 @@ function filterProfilesByPreferences(myData){
     console.log(myGenderArr, prefGenderArr)
 
     // Run Sequelize Query to find users that match my preferences and I match theirs
-    return db.profiledata.findAll({
+    db.profiledata.findAll({
         where: {
             city: myData.city,
             gender: {
@@ -100,9 +126,13 @@ function filterProfilesByPreferences(myData){
             }, 
             pref_age_min: {[lte]:myAge},
             pref_age_max: {[gte]:myAge},
-            userid: {[ne]:myData.userid}
+            userid: {
+                [ne]:myData.userid,
+                [notIn]: [seenArr]
+            }
         }
     })
+
 }
 
 
