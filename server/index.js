@@ -157,6 +157,15 @@ app.post('/logout', function(req, res){
     res.redirect('/');
 });
 
+//~~~~~~~~~~~~~~~~~~~~~~~matches on myapp page~~~~~~~~~~~~~~~~~~~~~~~~~~~
+var arrayOfMatches = "[]";
+
+function createMatchesHTML(arrayOfMatches) {
+    for (var i = 0; i < arrayOfMatches.length; i++) {
+
+    }
+}
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      HTML Templating
@@ -290,6 +299,10 @@ function buildAppHTML (user) {
   <!-- Icons CDN -->
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
   <title>Timber: Fall in "Like"</title>
+
+  <!-- Title-bar Icon -->
+  <link rel="shortcut icon" type="image/png" href="/public/style/flame.png" />
+
   </head>
   <body>
       <div class="container-fluid">
