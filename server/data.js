@@ -34,9 +34,9 @@ module.exports = {
 //                      OFFLINE TESTS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-const email = 'gmcilhatton0@google.ca'
+// const email = 'gmcilhatton0@google.ca'
 
-findListOfProfiles(3)
+// findListOfProfiles(3)
 
 // findSeenProfiles(3)
     // .then(function(result){console.log(result)})
@@ -60,13 +60,14 @@ function findProfileById (id) {
         })
 }
 
-function findSeenProfiles (myUserId) {
+function findSeenProfilesById (myUserId) {
     return db.like.findAll({
         where: {
             userid_A:myUserId
         }
     })
     .then(function(resultArray){
+        console.log('test 3')
         var userBArray = []
         resultArray.forEach(function (object) {
             userBArray.push(object.userid_B)
@@ -78,7 +79,10 @@ function findSeenProfiles (myUserId) {
 
 function findListOfProfiles (myUserId){
     return findProfileById(myUserId)
-        .then(function(myData){return filterProfilesByPreferences(myData)})
+            .then(function(myData){
+                return findSeenProfilesById(myData.userid)
+                .then(function(seenArr){return filterProfilesByPreferences(myData, seenArr)})
+            })
             .then(function(resultArray){
                 resultArray.forEach(function (object) {
                     object.age = getAge(object.birthday)
@@ -88,15 +92,13 @@ function findListOfProfiles (myUserId){
             })
 }
 
-function filterProfilesByPreferences(myData){
+function filterProfilesByPreferences(myData, seenArr){
+    if(!seenArr){seenArr=[]}
     const myAge = getAge(myData.birthday)
     const newestBirthdate = getBirthday(myData.pref_age_min)
     const oldestBirthdate = getBirthday(myData.pref_age_max)
     console.log('My name is',myData.f_name, myData.l_name, ', I am a',myAge,'year old',myData.gender,'living in',myData.city,'and I am looking for a',myData.pref_gender,'born between the dates of',oldestBirthdate,'and',newestBirthdate)
-
-    // Seen Array
-    const seenArr = [ 33, 976, 387, 595 ]
-
+    
     // Create Gender Arrays
     var myGenderArr
     if (myData.gender=='B'){
