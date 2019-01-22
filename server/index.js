@@ -336,7 +336,7 @@ function buildWelcomeHTML () {
 
 function buildAppHTML (myuserid, user, arrayOfMatches) {
     if (!user){user = {}}
-    if (user.profile_picture == ''||'N/A'||null){user.profile_picture = defaultPhoto}
+    if (user.profile_picture == ''){user.profile_picture = defaultPhoto}
 
     // @Audry
     // Copy the section of html in the return statement below that builds the 'Match Card' and put it in the creatMatchesHTML function

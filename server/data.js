@@ -45,7 +45,9 @@ module.exports = {
 
 // upsertLike(500, 300, false)
 
-findReflexLikesById (3).then(console.log(result))
+// findMyLikesById (3).then((result) => console.log(result)) // works
+// findReflexLikesById (3).then((result) => console.log(result)) // works
+findReflexLikesById (33).then((result) => {createMatches(result)}) // not working
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
@@ -108,10 +110,12 @@ function findReflexLikesById (myUserId) {
             }
         })
     })
+    .then ((result) => {return likesResultToArray(result)})
 }
 
 function createMatches (entries) {
-    return db.matches.bulkCreate(entries)
+    return db.matches.bulkCreate(entries, {ignoreDuplicates:true})
+    .then((result) => {console.log(result)})
 }
 // Building ^^^^^^^
 
@@ -226,4 +230,14 @@ function getBirthday(age) {
     var today = new Date()
     var birthDate = new Date(today.getTime() - agems)
     return birthDate.getFullYear()+'-'+(1+birthDate.getMonth())+'-'+birthDate.getDate()
+}
+
+function likesResultToArray (result) {
+    // Also inverts the results A-B B-A
+    var array = []
+    result.forEach((object) => {
+        array.push({userid_A: object.userid_B, userid_B: object.userid_A})
+        console.log(array)
+    })
+    return array
 }
