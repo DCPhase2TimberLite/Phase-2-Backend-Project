@@ -112,8 +112,7 @@ app.get('/app/', function (req, res) {
 app.get('/app/:id', function (req, res) {
     data.getListOfProfiles(req.params.id)
         .then(function(results){
-            console.log(results)
-            res.send(buildAppHTML(results))
+            res.send(buildAppHTML(req.params.id, results))
         })
 })
 
@@ -129,6 +128,12 @@ app.get('/myProfile/:id', function (req, res) {
 })
   
 app.post('/myProfile', function (req, res) {
+})
+
+app.post('/app_reaction', function (req, res) {
+    console.log(req.body)
+    data.createALikeDBEntry(req.body.myuserID, req.body.theiruserID, req.body.liked)
+    .then(res.redirect('/app/'+req.body.myuserID))
 })
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -284,7 +289,7 @@ function buildWelcomeHTML () {
 `
 }
 
-function buildAppHTML (user) {
+function buildAppHTML (myuserid, user) {
     if (!user){
         user = {}
     }
@@ -342,13 +347,14 @@ function buildAppHTML (user) {
                               </div>
                           <p class="card-text">${user.bio}</p>
   
-                          <form action="/app_reaction/" method="post" id="currentProfile">
-                              <input type="text" name="UserID" value="${user.userid}" style="display:none;">
-                          </form>
-                          <div class="d-flex justify-content-between" id="card-reactions">
-                              <button type="submit" name="liked" value="false" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
-                              <button type="submit" name="liked" value="true" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></button>
-                          </div>
+                          <form action="/app_reaction" method="post" id="currentProfile">
+                            <input type="text" name="myuserID" value="${myuserid}" style="display:none;">
+                            <input type="text" name="theiruserID" value="${user.userid}" style="display:none;">
+                            <div class="d-flex justify-content-between" id="card-reactions">
+                                <button type="submit" name="liked" value="false" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
+                                <button type="submit" name="liked" value="true" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></button>
+                            </div>
+                            </form>
                           </div>
                       </div>
               </div>

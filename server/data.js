@@ -168,7 +168,7 @@ function upsertLike(myUserId, theirUserId, liked) {
                 })
             }
         })
-
+    }
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -219,4 +219,4 @@ function getBirthday(age) {
 //     results.forEach(function(index){
 //             console.log(index.userid, index.f_name, index.l_name);
 //         })
-//   });
+//   })
