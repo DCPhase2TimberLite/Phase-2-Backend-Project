@@ -26,14 +26,14 @@ app.use(express.urlencoded())
 app.use(passport.session())
 
 passport.serializeUser(function (user, cb) {
-  cb(null, user.id)
+    cb(null, user.id)
 })
 
 passport.deserializeUser(function (email, cb) {
-  db.account.findOne({ where: { email: email } })
-    .then(function (user) {
-      cb(null, user.id)
-    })
+    data.getAccountByEmail(email)
+        .then(function (user) {
+            cb(null, user.id)
+        })
 })
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -43,31 +43,25 @@ const LocalStrategy = require('passport-local').Strategy
 
 passport.use('login-local', new LocalStrategy(function (email, password, done) {
     console.log('logging in user')
-        db.account.findOne({ where: { email: email } })
-            .then(function (user) {
-                // if (err) {
-                //     console.log("error signing user in")
-                // return done(err)
-                // }
-
-                if (!user) {
-                console.log('account not found')
-                return done(null, false)
-                }
-
-                if (user.pass != password) {
-                console.log('!=pass')
-                return done(null, false)
-                }
-                console.log('success')
-                return done(null, user)
-            })
-    }
-))
+    data.getAccountByEmail(email)
+        .then(function (user) {
+            if (!user) {
+            console.log('account not found')
+            return done(null, false)
+            }
+            if (user.pass != password) {
+            console.log('!=pass')
+            return done(null, false)
+            }
+            console.log('success')
+            return done(null, user)
+        })
+}))
 
 passport.use('register-local', new LocalStrategy(function (email, password, done) {
-        db.account.findOne({ where: { email: email } })
-            .then(function (user) {
+    console.log('registring user')
+    data.getAccountByEmail(email)
+        .then(function (user) {
             if (!user) {
                 console.log('registering new account')
                 db.account.create({ email: email, pass: password }).then(function(user){
@@ -75,20 +69,11 @@ passport.use('register-local', new LocalStrategy(function (email, password, done
                     return done(null, user)
                 })
             } else {
-                    console.log("error creating account")
-                    return
-                }
-    
-            // if (user.pass != password) {
-            //     console.log('!=pass')
-            //     return done(null, false)
-            // }
-
-            // console.log('success')
-            // return done(null, user)
-            })
-    }
-))
+                console.log("error creating account")
+                return
+            }
+        })
+}))
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      FACEBOOK AUTH
@@ -148,7 +133,7 @@ app.post('/myProfile', function (req, res) {
 //                      OAUTH ROUTES
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 app.get('/auth/facebook',
-  passport.authenticate('facebook'))
+    passport.authenticate('facebook'))
 
 app.get('/auth/facebook/callback',passport.authenticate('facebook', { failureRedirect: '/error' }),function (req, res) {
     res.redirect('/app')
