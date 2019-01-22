@@ -25,6 +25,9 @@ module.exports = {
     },
     createALikeDBEntry: (myUserId, theirUserId, liked) => {
         return upsertLike(myUserId, theirUserId, liked)
+    },
+    createProfileData: (account, profiledata) => {
+        return createProfileData(account, profiledata)
     }
 }
 
@@ -134,6 +137,17 @@ function filterProfilesByPreferences(myData, seenArr){
     })
 }
 
+
+function createProfileData(profiledata, account){
+    db.profiledata.create({
+    userid: account.id,
+    f_name: profiledata.first_name,
+    gender: profiledata.genderOptions,
+    //     //profile_picture: userProfile.profile_picture
+    birthday: profiledata.birthday
+    })
+}
+
 function upsertLike(myUserId, theirUserId, liked) {
     return db.like
         .findOne({ where: {
@@ -154,7 +168,8 @@ function upsertLike(myUserId, theirUserId, liked) {
                 })
             }
         })
-}
+
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                UTILITY FUNCTIONS
@@ -178,7 +193,7 @@ function getBirthday(age) {
     return birthDate.getFullYear()+'-'+(1+birthDate.getMonth())+'-'+birthDate.getDate()
 }
 
-
+  
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                SEQUELIZE REFERENCE QUERIES
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
