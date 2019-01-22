@@ -180,7 +180,7 @@ app.get('/app/:id', function (req, res) {
 
 app.post('/app_reaction', function (req, res) {
     console.log(req.body)
-    data.createALikeDBEntry(req.body.myuserID, req.body.theiruserID, req.body.liked)
+    data.createALikeDbEntry(req.body.myuserID, req.body.theiruserID, req.body.liked)
     .then(res.redirect('/app/'+req.body.myuserID))
 })
 

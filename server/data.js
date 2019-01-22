@@ -15,15 +15,15 @@ module.exports = {
         return findAccountByEmail(myEmail)
     },
     getListOfProfiles: (myUserId) => {
-        return findListOfProfiles(myUserId)
+        return findListOfProfilesById(myUserId)
     },
     getProfileById: (myUserId) => {
         return findProfileById(myUserId)
     },
-    getMatches: (myUserId) => {
+    getMatchesById: (myUserId) => {
         // Get user's matches
     },
-    createALikeDBEntry: (myUserId, theirUserId, liked) => {
+    createALikeDbEntry: (myUserId, theirUserId, liked) => {
         return upsertLike(myUserId, theirUserId, liked)
     },
     createProfileData: (profiledata, account) => {
@@ -38,7 +38,7 @@ module.exports = {
 
 // const email = 'gmcilhatton0@google.ca'
 
-// findListOfProfiles(3)
+// findListOfProfilesById(3)
 
 // findSeenProfiles(3)
     // .then(function(result){console.log(result)})
@@ -57,7 +57,7 @@ function findAccountByEmail (email) {
 
 function findProfileById (id) {
     return db.profiledata.findOne({where: {userid:id}})
-        .then(function(userData){
+        .then((userData) => {
             userData.age = getAge(userData.birthday)
             return userData
         })
@@ -69,24 +69,51 @@ function findSeenProfilesById (myUserId) {
             userid_A:myUserId
         }
     })
-    .then(function(resultArray){
+    .then((resultArray) => {
         var userBArray = []
-        resultArray.forEach(function (object) {
+        resultArray.forEach((object) => {
+            userBArray.push(object.userid_B)
+        })
+        return userBArray
+    })
+}
+
+// Building vvvvvvv
+function findLikedProfilesById (myUserId) {
+    return db.like.findAll({
+        where: {
+            userid_A:myUserId,
+            liked: true
+        }
+    })
+    .then ((resultBArray) => {
+        return db.like.findAll({
+            where: {
+                userid_A:resultBArray,
+                userid_B:myUserId,
+                liked: true
+            }
+        })
+    })
+    .then((resultArray) => {
+        var userBArray = []
+        resultArray.forEach((object) => {
             userBArray.push(object.userid_B)
             // console.log(userBArray)
         })
         return userBArray
     })
 }
+// Building ^^^^^^^
 
-function findListOfProfiles (myUserId){
+function findListOfProfilesById (myUserId){
     return findProfileById(myUserId)
-            .then(function(myData){
+            .then((myData) => {
                 return findSeenProfilesById(myData.userid)
-                .then(function(seenArr){return filterProfilesByPreferences(myData, seenArr)})
+                .then((seenArr) => {return filterProfilesByPreferences(myData, seenArr)})
             })
-            .then(function(resultArray){
-                resultArray.forEach(function (object) {
+            .then((resultArray) => {
+                resultArray.forEach((object) => {
                     object.age = getAge(object.birthday)
                     console.log(object.f_name, object.l_name, object.gender, object.age, object.birthday,object.city)
                 })
@@ -140,11 +167,11 @@ function filterProfilesByPreferences(myData, seenArr){
 
 function createProfileData(profiledata, account){
     db.profiledata.create({
-    userid: account.id,
-    f_name: profiledata.first_name,
-    gender: profiledata.genderOptions,
-    //     //profile_picture: userProfile.profile_picture
-    birthday: profiledata.birthday
+        userid: account.id,
+        f_name: profiledata.first_name,
+        gender: profiledata.genderOptions,
+        //     //profile_picture: userProfile.profile_picture
+        birthday: profiledata.birthday
     })
 }
 
@@ -154,7 +181,7 @@ function upsertLike(myUserId, theirUserId, liked) {
             userid_A: myUserId,
             userid_B: theirUserId
         }})
-        .then(function(obj) {
+        .then((obj) => {
             if(obj) { // update
                 return obj.update({
                     liked: liked
@@ -192,31 +219,3 @@ function getBirthday(age) {
     var birthDate = new Date(today.getTime() - agems)
     return birthDate.getFullYear()+'-'+(1+birthDate.getMonth())+'-'+birthDate.getDate()
 }
-
-  
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//                SEQUELIZE REFERENCE QUERIES
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-// db.accounts.findAll()
-//     .then((results) => {
-//         results.forEach(function(index){
-//             console.log(index.userid, index.f_name)
-//         })
-//     })
-
-// models.post.findByID(10).then(function(post){
-//     console.log(post)
-// })
-
-// db.accounts.create({email:'testemail@email.com',password:'this-is-a-password-hash'})
-// .then(function(user){
-//     console.log(user)
-// })
-
-// db.accounts.findAll({where: {l_name: 'Ashard'}})
-//   .then((results) => {
-//     results.forEach(function(index){
-//             console.log(index.userid, index.f_name, index.l_name);
-//         })
-//   })
