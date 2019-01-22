@@ -11,6 +11,9 @@ const db = require('../models')
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 module.exports = {
+    getAccountByEmail: (myEmail) => {
+        return findAccountByEmail(myEmail)
+    },
     getListOfProfiles: (myUserId) => {
         return findProfileById(myUserId)
             .then(function(myData){return filterProfilesByPreferences(myData)})
@@ -21,7 +24,6 @@ module.exports = {
                     })
                     return resultArray[0]
                 })
-                
     },
     getProfileById: (myUserId) => {
         return findProfileById(myUserId)
@@ -50,10 +52,14 @@ const email = 'gmcilhatton0@google.ca'
 //                      SEQUELIZE FUNCTIONS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-function findProfileById (id) {
-    return db.profiledata.findOne({
-        where: {userid:id}
+function findAccountByEmail (email) {
+    return db.account.findOne({
+        where: {email:email}
     })
+}
+
+function findProfileById (id) {
+    return db.profiledata.findOne({where: {userid:id}})
         .then(function(userData){
             userData.age = getAge(userData.birthday)
             return userData
@@ -99,11 +105,7 @@ function filterProfilesByPreferences(myData){
     })
 }
 
-function findAccountByEmail (email) {
-    return db.account.findOne({
-        where: {email:email}
-    })
-}
+
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
