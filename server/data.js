@@ -43,7 +43,7 @@ module.exports = {
 // findSeenProfiles(3)
     // .then(function(result){console.log(result)})
 
-upsertLike(500, 300, false)
+// upsertLike(500, 300, false)
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
