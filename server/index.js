@@ -59,19 +59,20 @@ passport.use('login-local', new LocalStrategy(function (email, password, done) {
 }))
 
 passport.use('register-local', new LocalStrategy(function (email, password, done) {
-    console.log('registring user')
+    console.log('registering locally')
     data.getAccountByEmail(email)
         .then(function (user) {
             if (!user) {
                 console.log('registering new account')
-                db.account.create({ email: email, pass: password }).then(function(user){
-                    console.log('success')
-                    return done(null, user)
-                })
-            } else {
-                console.log("error creating account")
-                return
-            }
+                db.account.create({ email: email, pass: password })
+                    .then(function(user){
+                        return done(null, user)
+                    })
+                    } 
+                    else {
+                        console.log("error creating account")
+                        return
+                    }
         })
 }))
 
@@ -111,6 +112,7 @@ app.get('/app/', function (req, res) {
 app.get('/app/:id', function (req, res) {
     data.getListOfProfiles(req.params.id)
         .then(function(results){
+            console.log(results)
             res.send(buildAppHTML(results))
         })
 })
@@ -144,7 +146,11 @@ app.post('/login', passport.authenticate('login-local', { failureRedirect: '/err
 })
 
 app.post('/register', passport.authenticate('register-local', { failureRedirect: '/error2' }), function(req, res) {
-    res.redirect('/app')
+    var profiledata = req.body
+    var account = req.user
+    console.log("BODY: ", profiledata, "USER", account)
+    data.createProfileData(profiledata, account)
+    res.redirect('/myProfile/'+account.id)
 })
 
 app.get('/error', (req, res) => res.send('error logging in'))
@@ -165,7 +171,6 @@ function createMatchesHTML(arrayOfMatches) {
 
     }
 }
-
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      HTML Templating
@@ -225,15 +230,15 @@ function buildWelcomeHTML () {
                 <label for="gender">Gender</label>
                 <div class="form-group" id="gender"> 
                     <div class="form-check form-check-inline" >
-                      <input class="form-check-input" type="radio" name="genderOptions" id="genderOption1" value="option1">
+                      <input class="form-check-input" type="radio" name="genderOptions" id="genderOption1" value="M">
                       <label class="form-check-label" for="genderOption1">Man</label>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="genderOptions" id="genderOption2" value="option2">
+                      <input class="form-check-input" type="radio" name="genderOptions" id="genderOption2" value="F">
                       <label class="form-check-label" for="genderOption2">Woman</label>
                     </div>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="genderOptions" id="genderOption3" value="option3">
+                      <input class="form-check-input" type="radio" name="genderOptions" id="genderOption3" value="B">
                       <label class="form-check-label" for="genderOption3">Other</label>
                     </div>
                 </div>
@@ -247,7 +252,7 @@ function buildWelcomeHTML () {
               </div>
               <div class="form-group col">
                 <label for="birthday">Birthday</label>
-                <input type="email" class="form-control" id="birthday" placeholder="01/20/1995">
+                <input class="form-control" id="birthday" name="birthday" placeholder="01/20/1995">
               </div>
           </div>
           <!-- row -->
@@ -280,7 +285,9 @@ function buildWelcomeHTML () {
 }
 
 function buildAppHTML (user) {
-
+    if (!user){
+        user = {}
+    }
   if (user.profile_picture == "N/A"){user.profile_picture = defaultPhoto}
 
   return `
