@@ -115,7 +115,6 @@ function findReflexLikesById (myUserId) {
 
 function createMatches (entries) {
     return db.matches.bulkCreate(entries, {ignoreDuplicates:true})
-    .then((result) => {console.log(result)})
 }
 // Building ^^^^^^^
 
@@ -237,7 +236,6 @@ function likesResultToArray (result) {
     var array = []
     result.forEach((object) => {
         array.push({userid_A: object.userid_B, userid_B: object.userid_A})
-        console.log(array)
     })
     return array
 }
