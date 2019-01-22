@@ -45,6 +45,8 @@ module.exports = {
 
 // upsertLike(500, 300, false)
 
+findReflexLikesById (3).then(console.log(result))
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,12 +81,23 @@ function findSeenProfilesById (myUserId) {
 }
 
 // Building vvvvvvv
-function findLikedProfilesById (myUserId) {
+function findMyLikesById (myUserId) {
     return db.like.findAll({
         where: {
             userid_A:myUserId,
             liked: true
         }
+    })  
+}
+
+function findReflexLikesById (myUserId) {
+    return findMyLikesById(myUserId)
+    .then((resultArray) => {
+        var userBArray = []
+        resultArray.forEach((object) => {
+            userBArray.push(object.userid_B)
+        })
+        return userBArray
     })
     .then ((resultBArray) => {
         return db.like.findAll({
@@ -95,14 +108,10 @@ function findLikedProfilesById (myUserId) {
             }
         })
     })
-    .then((resultArray) => {
-        var userBArray = []
-        resultArray.forEach((object) => {
-            userBArray.push(object.userid_B)
-            // console.log(userBArray)
-        })
-        return userBArray
-    })
+}
+
+function createMatches (entries) {
+    return db.matches.bulkCreate(entries)
 }
 // Building ^^^^^^^
 
@@ -141,7 +150,6 @@ function filterProfilesByPreferences(myData, seenArr){
     } else {
         prefGenderArr=[myData.pref_gender]
     }
-    console.log(myGenderArr, prefGenderArr)
 
     // Run Sequelize Query to find users that match my preferences and I match theirs
     return db.profiledata.findAll({
