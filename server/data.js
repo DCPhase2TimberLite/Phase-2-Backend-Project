@@ -33,6 +33,9 @@ module.exports = {
     },
     createALikeDBEntry: (myUserId, theirUserId, like) => {
         // 
+    },
+    createProfileData: (account, profiledata) => {
+        return createProfileData(account, profiledata)
     }
 }
 
@@ -43,7 +46,6 @@ module.exports = {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 const email = 'gmcilhatton0@google.ca'
-
 // getListOfProfiles(66)
 
 
@@ -105,8 +107,15 @@ function filterProfilesByPreferences(myData){
     })
 }
 
-
-
+function createProfileData(profiledata, account){
+    db.profiledata.create({
+    userid: account.id,
+    f_name: profiledata.first_name,
+    gender: profiledata.genderOptions,
+    //     //profile_picture: userProfile.profile_picture
+    birthday: profiledata.birthday
+    })
+}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                UTILITY FUNCTIONS
@@ -129,9 +138,6 @@ function getBirthday(age) {
     var birthDate = new Date(today.getTime() - agems)
     return birthDate.getFullYear()+'-'+(1+birthDate.getMonth())+'-'+birthDate.getDate()
 }
-
-
-
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                SEQUELIZE REFERENCE QUERIES
