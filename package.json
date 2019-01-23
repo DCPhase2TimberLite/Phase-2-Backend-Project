@@ -17,8 +17,10 @@
   },
   "homepage": "https://github.com/DCPhase2TimberLite/Phase-2-Backend-Project#readme",
   "dependencies": {
+    "cookie-parser": "^1.4.3",
     "csv-parse": "^4.3.0",
     "express": "^4.16.4",
+    "express-session": "^1.15.6",
     "fs": "0.0.1-security",
     "node": "^11.6.0",
     "passport": "^0.4.0",
