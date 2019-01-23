@@ -1,4 +1,4 @@
-# Phase-2-Backend-Project: Timber ~ "Fall in Love"
+# Phase-2-Backend-Project: Timber ~ "Fall in like"
 
 This is the final project for "Phase 2" of the Flex course for [DigitalCrafts]
 Houston - Sept 2018 Cohort. It is focused on backend technologies using [Node.js].
