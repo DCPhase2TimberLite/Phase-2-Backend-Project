@@ -1,6 +1,6 @@
 {
   "development": {
-    "username": "gwin333",
+    "username": "KingDerrick",
     "password": null,
     "database": "timber_development",
     "host": "127.0.0.1",
@@ -14,10 +14,10 @@
     "dialect": "postgres"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
+    "username": "drfxlxhterwlqn",
+    "password": "65458404d83da2ec4a7f3a6b52885681e1c7f077e22809461dc6d3e9073f9f8a",
+    "database": "d2en12o560i6g5",
+    "host": "ec2-54-235-68-3.compute-1.amazonaws.com",
     "dialect": "postgres"
   }
 }
