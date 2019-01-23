@@ -24,7 +24,10 @@ module.exports = {
         return findMyMatchesById (myUserId)
     },
     createALikeDbEntry: (myUserId, theirUserId, liked) => {
-        return upsertLike(myUserId, theirUserId, liked).then(() => {return isItAMatch(myUserId, theirUserId)}).then((result) => {if(result.length==2){return Promise.all([createMatches(myUserId, theirUserId),createMatches(theirUserId, myUserId)])}})
+        return upsertLike(myUserId, theirUserId, liked).then(() => {
+            return isItAMatch(myUserId, theirUserId)}).then((result) => {
+                if(result.length==2){
+                    return Promise.all([createMatches(myUserId, theirUserId),createMatches(theirUserId, myUserId)])}})
     },
     createProfileData: (profiledata, account) => {
         return createProfileData(profiledata, account)
@@ -45,7 +48,9 @@ module.exports = {
 //                      OFFLINE TESTS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// createAllMatchesById(myUserId).then((result) => {console.log(result)}) // Run this to populate matches data
+if(process.argv[2]!==undefined){
+    createAllMatchesById(process.argv[2]).then((result) => {console.log(result)}) // Run this to populate matches data
+}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
@@ -292,6 +297,7 @@ function likesResultToArray (result) {
     var array = []
     result.forEach((object) => {
         array.push({userid_A: object.userid_B, userid_B: object.userid_A})
+        array.push({userid_A: object.userid_A, userid_B: object.userid_B})
     })
     return array
 }
