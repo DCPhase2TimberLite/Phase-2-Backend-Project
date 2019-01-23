@@ -4,7 +4,8 @@
   "description": "This is the final project for \"Phase 2\" of the Flex course for [DigitalCrafts] Houston - Sept 2018 Cohort. It is focused on backend technologies using [Node.js].",
   "main": "index.js",
   "scripts": {
-    "test": "node tests/test.js"
+    "test": "node tests/test.js",
+    "start": "node server/."
   },
   "repository": {
     "type": "git",

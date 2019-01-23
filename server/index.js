@@ -26,14 +26,14 @@ app.use(express.urlencoded())
 app.use(passport.session())
 
 passport.serializeUser(function (user, cb) {
-    cb(null, user.id)
+  cb(null, user.id)
 })
 
 passport.deserializeUser(function (email, cb) {
-    data.getAccountByEmail(email)
-        .then(function (user) {
-            cb(null, user.id)
-        })
+  data.getAccountByEmail(email)
+    .then(function (user) {
+      cb(null, user.id)
+    })
 })
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,38 +42,37 @@ passport.deserializeUser(function (email, cb) {
 const LocalStrategy = require('passport-local').Strategy
 
 passport.use('login-local', new LocalStrategy(function (email, password, done) {
-    console.log('logging in user')
-    data.getAccountByEmail(email)
-        .then(function (user) {
-            if (!user) {
-            console.log('account not found')
-            return done(null, false)
-            }
-            if (user.pass != password) {
-            console.log('!=pass')
-            return done(null, false)
-            }
-            console.log('success')
-            return done(null, user)
-        })
+  console.log('logging in user')
+  data.getAccountByEmail(email)
+    .then(function (user) {
+      if (!user) {
+        console.log('account not found')
+        return done(null, false)
+      }
+      if (user.pass != password) {
+        console.log('!=pass')
+        return done(null, false)
+      }
+      console.log('success')
+      return done(null, user)
+    })
 }))
 
 passport.use('register-local', new LocalStrategy(function (email, password, done) {
-    console.log('registering locally')
-    data.getAccountByEmail(email)
-        .then(function (user) {
-            if (!user) {
-                console.log('registering new account')
-                db.account.create({ email: email, pass: password })
-                    .then(function(user){
-                        return done(null, user)
-                    })
-                    } 
-                    else {
-                        console.log("error creating account")
-                        return
-                    }
-        })
+  console.log('registering locally')
+  data.getAccountByEmail(email)
+    .then(function (user) {
+      if (!user) {
+        console.log('registering new account')
+        db.account.create({ email: email, pass: password })
+          .then(function (user) {
+            return done(null, user)
+          })
+      }
+      else {
+        console.log('error creating account')
+      }
+    })
 }))
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -98,83 +97,82 @@ function (accessToken, refreshToken, profile, cb) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 app.get('/', function (req, res) {
-    res.send(buildWelcomeHTML())
+  res.send(buildWelcomeHTML())
 })
 
 app.post('/', function (req, res) {
-    res.send(buildMyProfileHTML())
+  res.send(buildMyProfileHTML())
 })
 
 app.get('/app/', function (req, res) {
-    res.send('No User ID')
+  res.send('No User ID')
 })
 
 app.get('/app/:id', function (req, res) {
-    data.getListOfProfiles(req.params.id)
-        .then(function(results){
-            res.send(buildAppHTML(req.params.id, results))
-        })
+  data.getListOfProfiles(req.params.id)
+    .then(function (results) {
+      res.send(buildAppHTML(req.params.id, results))
+    })
 })
 
 app.get('/myProfile', function (req, res) {
-    res.send('No User ID')
+  res.send('No User ID')
 })
 
 app.get('/myProfile/:id', function (req, res) {
-    data.getProfileById(req.params.id)
-        .then(function(result){
-            res.send(buildMyProfileHTML(result))
-        })
+  data.getProfileById(req.params.id)
+    .then(function (result) {
+      res.send(buildMyProfileHTML(result))
+    })
 })
-  
+
 app.post('/myProfile', function (req, res) {
 })
 
 app.post('/app_reaction', function (req, res) {
-    console.log(req.body)
-    data.createALikeDBEntry(req.body.myuserID, req.body.theiruserID, req.body.liked)
-    .then(res.redirect('/app/'+req.body.myuserID))
+  console.log(req.body)
+  data.createALikeDBEntry(req.body.myuserID, req.body.theiruserID, req.body.liked)
+    .then(res.redirect('/app/' + req.body.myuserID))
 })
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      OAUTH ROUTES
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 app.get('/auth/facebook',
-    passport.authenticate('facebook'))
+  passport.authenticate('facebook'))
 
-app.get('/auth/facebook/callback',passport.authenticate('facebook', { failureRedirect: '/error' }),function (req, res) {
-    res.redirect('/app/'+req.user.id)
-  })
-
-app.post('/login', passport.authenticate('login-local', { failureRedirect: '/error' }), function(req, res) {
-    res.redirect('/app/'+req.user.id)
+app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/error' }), function (req, res) {
+  res.redirect('/app/' + req.user.id)
 })
 
-app.post('/register', passport.authenticate('register-local', { failureRedirect: '/error2' }), function(req, res) {
-    var profiledata = req.body
-    var account = req.user
-    console.log("BODY: ", profiledata, "USER", account)
-    data.createProfileData(profiledata, account)
-    res.redirect('/myProfile/'+account.id)
+app.post('/login', passport.authenticate('login-local', { failureRedirect: '/error' }), function (req, res) {
+  res.redirect('/app/' + req.user.id)
+})
+
+app.post('/register', passport.authenticate('register-local', { failureRedirect: '/error2' }), function (req, res) {
+  var profiledata = req.body
+  var account = req.user
+  console.log('BODY: ', profiledata, 'USER', account)
+  data.createProfileData(profiledata, account)
+  res.redirect('/myProfile/' + account.id)
 })
 
 app.get('/error', (req, res) => res.send('error logging in'))
 app.get('/error2', (req, res) => res.send('error creating account'))
 
+// ~~~~~~~~~~~~~~~~~~~~~~~auth logout~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+app.post('/logout', function (req, res) {
+  req.logout()
+  res.redirect('/')
+})
 
-//~~~~~~~~~~~~~~~~~~~~~~~auth logout~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app.post('/logout', function(req, res){
-    req.logout();
-    res.redirect('/');
-});
+// ~~~~~~~~~~~~~~~~~~~~~~~matches on myapp page~~~~~~~~~~~~~~~~~~~~~~~~~~~
+var arrayOfMatches = '[]'
 
-//~~~~~~~~~~~~~~~~~~~~~~~matches on myapp page~~~~~~~~~~~~~~~~~~~~~~~~~~~
-var arrayOfMatches = "[]";
+function createMatchesHTML (arrayOfMatches) {
+  for (var i = 0; i < arrayOfMatches.length; i++) {
 
-function createMatchesHTML(arrayOfMatches) {
-    for (var i = 0; i < arrayOfMatches.length; i++) {
-
-    }
+  }
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -290,10 +288,10 @@ function buildWelcomeHTML () {
 }
 
 function buildAppHTML (myuserid, user) {
-    if (!user){
-        user = {}
-    }
-  if (user.profile_picture == "N/A"){user.profile_picture = defaultPhoto}
+  if (!user) {
+    user = {}
+  }
+  if (user.profile_picture == 'N/A') { user.profile_picture = defaultPhoto }
 
   return `
   <!DOCTYPE html>
@@ -370,7 +368,7 @@ function buildAppHTML (myuserid, user) {
 }
 
 function buildMyProfileHTML (user) {
-    return `
+  return `
     <!DOCTYPE html>
     <html lang="en">
     <head>
