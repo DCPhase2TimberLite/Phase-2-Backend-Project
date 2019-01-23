@@ -193,6 +193,7 @@ const defaultPhoto = './public/style/profile.png'
 function createMatchesHTML(arrayOfMatches) {
     console.log('creating MatchesHTML...')
     
+    // these vars are for testing purposes only
     var user1 = {f_name: "Carly", age: 28, email: "carly@yahoo.com", profile_picture:'https://tse4.mm.bing.net/th?id=OIP.R0GCWtJunSCmbLsSyT8-JwHaFZ&w=230&h=170&rs=1&pcl=dddddd&o=5&pid=1.1'};
     var user2 = {f_name: "Jason", age: 35, email: "constancio.j@gmail.com", profile_picture:'https://tse4.mm.bing.net/th?id=OIP.y0X9yMuwnd17WPLS1xM0iwHaGC&w=230&h=170&rs=1&pcl=dddddd&o=5&pid=1.1'};
     var user3 = {f_name: "Sylvester", age: 31, email: "syllytraveler@qq.com", profile_picture: 'https://tse3.mm.bing.net/th?id=OIP.7S-OpPDXc418jDRANvrfLwHaL1&w=230&h=170&rs=1&pcl=dddddd&o=5&pid=1.1'};
@@ -201,19 +202,21 @@ function createMatchesHTML(arrayOfMatches) {
     var user6 = {f_name: "Aaron", age: 52, email: "a_a_ron@hotmail.com", profile_picture:'https://tse2.mm.bing.net/th?id=OIP.cgA-o__GfQu6QznspGMK4QHaEi&w=230&h=170&rs=1&pcl=dddddd&o=5&pid=1.1'};
 
     var arrayOfMatches = [user1,user2,user3,user4,user5,user6]
-
-    // these vars are for testing purposes only
     
     var arrayHTML = arrayOfMatches.map(function (user, index) {
-        var matchesCard =     `
-            <div class="card" style="width: 300px; height: 300px">
-            <img class="card-img-top" src="${user.profile_picture}" alt="User Photo">
-            <div class="bottom-left">${user.f_name}</div>
-            <div class="top-right">${user.age}</div><br />
-            <div class="card-footer">${user.email}</div>
-            </div>`
+        var matchesCard =     
+            `
+            <div class="card matches" style="width: 150px;">
+                <img class="card-img-top" src="${user.profile_picture}" alt="User Photo">
+                <div class="card-body">
+                    <h6 class="card-text" style="font-weight:bold";>${user.f_name}, ${user.age}</h6>
+                    <div class="card-text email-text"><i class="far fa-envelope"></i> ${user.email}</div>
+                </div>
+            </div>
+            `
+
+
         return matchesCard;
-        
     })
     return arrayHTML.join('')
 }
@@ -235,7 +238,7 @@ function buildHeaderHTML () {
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 
     <!-- Title-bar Icon -->
-    <link rel="shortcut icon" type="image/png" href="/public/style/flame.png" />
+    <link rel="shortcut icon" type="image/png" href="../style/flame.png" />
     <title>Timber | Fall in "Like"</title>
 
     </head>
@@ -373,8 +376,8 @@ function buildAppHTML (myuserid, user, arrayOfMatches) {
                   </form><br />
                   <a href="/myProfile/${myuserid}"><h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5></a>
                   <p style="text-align:center; background-color:#ff5050;;">Matches</p><br />
-
-                  <div class="row d-flex" id="matchesContainer" style="flex-wrap: wrap; justify-content: space-between;">
+                
+                  <div class="d-flex flex-row" id="matchesContainer" style="flex-wrap: wrap; justify-content:space-around;">
                     ${createMatchesHTML(arrayOfMatches)}
                   </div>
 

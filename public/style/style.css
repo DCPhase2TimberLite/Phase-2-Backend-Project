@@ -12,6 +12,12 @@
     box-shadow: 3px 0 10px #ff5c33;
 }
 
+#matchesContainer {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 77vh;
+}
+
 .sidenav p{
     padding: 8px 0px;
     font-weight: 825;
@@ -63,16 +69,10 @@
     color: rgb(255, 110, 57);
 }
 
-.bottom-left {
-    position: absolute;
-    bottom: 8px;
-    left: 16px;
+.matches *{
     color: #000;
-  }
+}
 
-.top-right {
-    position: absolute;
-    top: 8px;
-    right: 16px;
-    color: #000;
+.email-text {
+    font-size: 10px;
 }
