@@ -78,7 +78,25 @@ function findMyMatchesById (myUserId) {
         where: {
             userid_A: myUserId
         }
-    })  
+    })
+    .then((resultArray) => {
+        var userBArray = []
+        resultArray.forEach((object) => {
+            userBArray.push(object.userid_B)
+        })
+        return userBArray
+    })
+    .then((results) => {
+        return db.profiledata.findAll({where: {userid: results}})
+    })
+    .then((array) => {
+        var resultArray = []
+        array.forEach((object) => {
+            object.age = getAge(object.birthday)
+            resultArray.push(object)
+        })
+        return resultArray
+    })
 }
 
 function findSeenProfilesById (myUserId) {
