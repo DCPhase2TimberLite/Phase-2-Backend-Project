@@ -1,4 +1,5 @@
 # Dependency directories
 node_modules/
+config/
 
 # Personal Files  (name any files/folders in here that you dont want to push to the repo)
