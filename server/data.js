@@ -14,20 +14,25 @@ module.exports = {
     getAccountByEmail: (myEmail) => {
         return findAccountByEmail(myEmail)
     },
-    getListOfProfiles: (myUserId) => {
-        return findListOfProfiles(myUserId)
-    },
     getProfileById: (myUserId) => {
         return findProfileById(myUserId)
     },
-    getMatches: (myUserId) => {
-        // Get user's matches
+    getListOfProfiles: (myUserId) => {
+        return findListOfProfilesById(myUserId)
     },
-    createALikeDBEntry: (myUserId, theirUserId, liked) => {
+    getMatchesById: (myUserId) => {
+        return findMyMatchesById (myUserId)
+    },
+    createALikeDbEntry: (myUserId, theirUserId, liked) => {
         return upsertLike(myUserId, theirUserId, liked)
+        .then(() => {return isItAMatch(myUserId, theirUserId)})
+        .then((result) => {if(result.length==2){return [createMatches(myUserId, theirUserId),createMatches(theirUserId, myUserId)]}})
     },
     createProfileData: (profiledata, account) => {
         return createProfileData(profiledata, account)
+    },
+    createAllMatchesById: (myUserId) => {
+        return createAllMatchesById(myUserId)
     }
 }
 
@@ -36,19 +41,11 @@ module.exports = {
 //                      OFFLINE TESTS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// const email = 'gmcilhatton0@google.ca'
-
-// findListOfProfiles(3)
-
-// findSeenProfiles(3)
-    // .then(function(result){console.log(result)})
-
-// upsertLike(500, 300, false)
+// createAllMatchesById(myUserId).then((result) => {console.log(result)}) // Run this to populate matches data
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 function findAccountByEmail (email) {
     return db.account.findOne({
         where: {email:email}
@@ -57,10 +54,27 @@ function findAccountByEmail (email) {
 
 function findProfileById (id) {
     return db.profiledata.findOne({where: {userid:id}})
-        .then(function(userData){
+        .then((userData) => {
             userData.age = getAge(userData.birthday)
             return userData
         })
+}
+
+function findMyLikesById (myUserId) {
+    return db.like.findAll({
+        where: {
+            userid_A:myUserId,
+            liked: true
+        }
+    })  
+}
+
+function findMyMatchesById (myUserId) {
+    return db.matches.findAll({
+        where: {
+            userid_A: myUserId
+        }
+    })  
 }
 
 function findSeenProfilesById (myUserId) {
@@ -69,26 +83,25 @@ function findSeenProfilesById (myUserId) {
             userid_A:myUserId
         }
     })
-    .then(function(resultArray){
+    .then((resultArray) => {
         var userBArray = []
-        resultArray.forEach(function (object) {
+        resultArray.forEach((object) => {
             userBArray.push(object.userid_B)
-            // console.log(userBArray)
         })
         return userBArray
     })
 }
 
-function findListOfProfiles (myUserId){
+function findListOfProfilesById (myUserId){
     return findProfileById(myUserId)
-            .then(function(myData){
+            .then((myData) => {
                 return findSeenProfilesById(myData.userid)
-                .then(function(seenArr){return filterProfilesByPreferences(myData, seenArr)})
+                .then((seenArr) => {return filterProfilesByPreferences(myData, seenArr)})
             })
-            .then(function(resultArray){
-                resultArray.forEach(function (object) {
+            .then((resultArray) => {
+                resultArray.forEach((object) => {
                     object.age = getAge(object.birthday)
-                    console.log(object.f_name, object.l_name, object.gender, object.age, object.birthday,object.city)
+                    console.log(object.userid, object.f_name, object.l_name, object.gender, object.age, object.birthday,object.city)
                 })
                 return resultArray[0]
             })
@@ -114,7 +127,6 @@ function filterProfilesByPreferences(myData, seenArr){
     } else {
         prefGenderArr=[myData.pref_gender]
     }
-    console.log(myGenderArr, prefGenderArr)
 
     // Run Sequelize Query to find users that match my preferences and I match theirs
     return db.profiledata.findAll({
@@ -137,15 +149,21 @@ function filterProfilesByPreferences(myData, seenArr){
     })
 }
 
-
 function createProfileData(profiledata, account){
     db.profiledata.create({
-    userid: account.id,
-    f_name: profiledata.first_name,
-    gender: profiledata.genderOptions,
-    //     //profile_picture: userProfile.profile_picture
-    birthday: profiledata.birthday
+        userid: account.id,
+        f_name: profiledata.first_name,
+        gender: profiledata.genderOptions,
+        //     //profile_picture: userProfile.profile_picture
+        birthday: profiledata.birthday
     })
+}
+
+function createMatches (myUserId, theirUserId){
+    return db.matches.create({
+        userid_A: myUserId,
+        userid_B: theirUserId
+    }, {ignoreDuplicates:true})
 }
 
 function upsertLike(myUserId, theirUserId, liked) {
@@ -154,7 +172,7 @@ function upsertLike(myUserId, theirUserId, liked) {
             userid_A: myUserId,
             userid_B: theirUserId
         }})
-        .then(function(obj) {
+        .then((obj) => {
             if(obj) { // update
                 return obj.update({
                     liked: liked
@@ -170,11 +188,49 @@ function upsertLike(myUserId, theirUserId, liked) {
         })
     }
 
+function isItAMatch (myUserId, theirUserId){
+    return db.like.findAll({
+        where: {
+            userid_A: [myUserId, theirUserId],
+            userid_B: [myUserId, theirUserId]
+        }
+    })
+}
+
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                BULK SEQUELIZE FUNCTIONS
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+function createAllMatchesById (myUserId) {
+    return findMyLikesById(myUserId)
+    .then((resultArray) => {
+        var userBArray = []
+        resultArray.forEach((object) => {
+            userBArray.push(object.userid_B)
+        })
+        return userBArray
+    })
+    .then ((resultBArray) => {
+        return db.like.findAll({
+            where: {
+                userid_A:resultBArray,
+                userid_B:myUserId,
+                liked: true
+            }
+        })
+    })
+    .then ((result) => {return likesResultToArray(result)})
+    .then ((result) => {return createBulkMatches(result)})
+}
+
+function createBulkMatches (entries) {
+    return db.matches.bulkCreate(entries, {ignoreDuplicates:true})
+}
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                UTILITY FUNCTIONS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 function getAge(dateString) {
     var today = new Date()
     var birthDate = new Date(dateString)
@@ -193,30 +249,11 @@ function getBirthday(age) {
     return birthDate.getFullYear()+'-'+(1+birthDate.getMonth())+'-'+birthDate.getDate()
 }
 
-  
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//                SEQUELIZE REFERENCE QUERIES
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-// db.accounts.findAll()
-//     .then((results) => {
-//         results.forEach(function(index){
-//             console.log(index.userid, index.f_name)
-//         })
-//     })
-
-// models.post.findByID(10).then(function(post){
-//     console.log(post)
-// })
-
-// db.accounts.create({email:'testemail@email.com',password:'this-is-a-password-hash'})
-// .then(function(user){
-//     console.log(user)
-// })
-
-// db.accounts.findAll({where: {l_name: 'Ashard'}})
-//   .then((results) => {
-//     results.forEach(function(index){
-//             console.log(index.userid, index.f_name, index.l_name);
-//         })
-//   })
+function likesResultToArray (result) {
+    // Also inverts the results A-B B-A
+    var array = []
+    result.forEach((object) => {
+        array.push({userid_A: object.userid_B, userid_B: object.userid_A})
+    })
+    return array
+}

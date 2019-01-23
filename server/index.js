@@ -180,7 +180,7 @@ app.get('/app/:id', function (req, res) {
 
 app.post('/app_reaction', function (req, res) {
     console.log(req.body)
-    data.createALikeDBEntry(req.body.myuserID, req.body.theiruserID, req.body.liked)
+    data.createALikeDbEntry(req.body.myuserID, req.body.theiruserID, req.body.liked)
     .then(res.redirect('/app/'+req.body.myuserID))
 })
 
@@ -336,7 +336,7 @@ function buildWelcomeHTML () {
 
 function buildAppHTML (myuserid, user, arrayOfMatches) {
     if (!user){user = {}}
-    if (user.profile_picture == ''||'N/A'||null){user.profile_picture = defaultPhoto}
+    if (user.profile_picture == ''){user.profile_picture = defaultPhoto}
 
     // @Audry
     // Copy the section of html in the return statement below that builds the 'Match Card' and put it in the creatMatchesHTML function
