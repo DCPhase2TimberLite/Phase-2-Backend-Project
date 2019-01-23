@@ -103,7 +103,6 @@ passport.use(new FacebookStrategy({
 app.post('/register', passport.authenticate('register-local', { failureRedirect: '/error2' }), function(req, res) {
     var profiledata = req.body
     var account = req.user
-    console.log("BODY: ", profiledata, "USER", account)
     data.createProfileData(profiledata, account)
     res.redirect('/myProfile')
 })
@@ -168,7 +167,12 @@ app.get('/myProfile', function (req, res) {
         })
 })
   
-app.post('/myProfile', function (req, res) {
+app.post('/Preferences', function (req, res) {
+    data.updatePreferences(req)
+})
+
+app.post('/Profile', function (req, res) {
+    data.updateProfile(req)
 })
 
 // App
@@ -436,11 +440,11 @@ function buildMyProfileHTML (user) {
 
                     <p style="text-align:center; background-color:#ff5050;">Preferences</p>
                     
-                    <form method="post" action="/myProfile">
+                    <form method="post" action="/Preferences">
                 
                         <div class="col-auto my-1">
                             <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
-                            <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
+                            <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="pref_gender">
                             <option selected>Choose one</option>
                             <option value="M">Men &#9794;</option>
                             <option value="F">Women &#9792;</option>
@@ -450,17 +454,16 @@ function buildMyProfileHTML (user) {
 
                         <div class="form-row">
                                 <div class="col">
-                                    <input type="integer" class="form-control" id="age-min" placeholder="${user.pref_age_min}">
+                                    <input type="integer" class="form-control" id="age-min" name="pref_age_min" placeholder="${user.pref_age_min}">
                                 </div>
                                 <div class="col">
-                                    <input type="integer" class="form-control" id="age-max" placeholder="${user.pref_age_max}">
+                                    <input type="integer" class="form-control" id="age-max" name="pref_age_max" placeholder="${user.pref_age_max}">
                                 </div>
                         </div>
 
                         <input type="submit" class="btn-block btn-danger" data-inline="true" value="Submit">
-                        </form><hr />
-                        
-
+                        </form>
+                        <hr />
                 </div>
                 <div class="main-content">
                     <h3 style="text-align:center;">Timber - Fall in <i class="far fa-heart"></i></h3>
@@ -475,13 +478,13 @@ function buildMyProfileHTML (user) {
                                 <div class="card-title" id="profile-age">${user.age}</div>
                             </div>
                         
-                        <form method="post" action="/myProfile">
+                        <form method="post" action="/Profile">
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">About Me:</span>
                             </div>
-                            <textarea class="form-control" aria-label="With textarea">${user.bio}</textarea>
-                            <button type="button" class="btn-danger">Save</button>
+                            <textarea class="form-control" aria-label="With textarea" name="bio" >${user.bio}</textarea>
+                            <input type="submit" class="btn-block btn-danger" data-inline="true" value="Save">
                         </div>
                         </form>
 

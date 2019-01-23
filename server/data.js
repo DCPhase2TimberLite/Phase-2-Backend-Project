@@ -29,6 +29,12 @@ module.exports = {
     createProfileData: (profiledata, account) => {
         return createProfileData(profiledata, account)
     },
+    updatePreferences: (req) => {
+        return updatePreferences(req)
+    },
+    updateProfile: (req) => {
+        return updateProfile(req)
+    },
     createAllMatchesById: (myUserId) => {
         return createAllMatchesById(myUserId)
     }
@@ -155,6 +161,22 @@ function createProfileData(profiledata, account){
         //     //profile_picture: userProfile.profile_picture
         birthday: profiledata.birthday
     })
+}
+
+function updatePreferences(req) {
+    console.log(req)
+    return db.profiledata.update({
+        pref_gender: req.body.pref_gender,
+        pref_age_min: req.body.pref_age_min,
+        pref_age_max: req.body.pref_age_max
+    }, {where: { userid:req.session.passport.user }}).then(() => {})
+}
+
+function updateProfile(req) {
+    console.log(req)
+    return db.profiledata.update({
+        bio: req.body.bio
+    }, {where: { userid:req.session.passport.user }}).then(() => {})
 }
 
 function createMatches (myUserId, theirUserId){
