@@ -24,9 +24,7 @@ module.exports = {
         return findMyMatchesById (myUserId)
     },
     createALikeDbEntry: (myUserId, theirUserId, liked) => {
-        return upsertLike(myUserId, theirUserId, liked)
-        .then(() => {return isItAMatch(myUserId, theirUserId)})
-        .then((result) => {if(result.length==2){return [createMatches(myUserId, theirUserId),createMatches(theirUserId, myUserId)]}})
+        return upsertLike(myUserId, theirUserId, liked).then(() => {return isItAMatch(myUserId, theirUserId)}).then((result) => {if(result.length==2){return Promise.all([createMatches(myUserId, theirUserId),createMatches(theirUserId, myUserId)])}})
     },
     createProfileData: (profiledata, account) => {
         return createProfileData(profiledata, account)

@@ -9,10 +9,11 @@ const data = require('./data')
 //                      EXPRESS SETUP
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const express = require('express')
+var session = require('express-session')
+var cookieParser = require('cookie-parser')
+const passport = require('passport')
 const path = require('path')
 const app = express()
-
-app.use(express.static('public'))
 
 const port = process.env.PORT || 3000
 app.listen(port, () => console.log('App listening on port ' + port))
@@ -20,17 +21,19 @@ app.listen(port, () => console.log('App listening on port ' + port))
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      PASSPORT SETUP
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-const passport = require('passport')
-app.use(passport.initialize())
+app.use(express.static('public'));
+app.use(cookieParser());
 app.use(express.urlencoded())
+app.use(session({secret: 'timber-log-piece-of-wood'}))
+app.use(passport.initialize());
 app.use(passport.session())
 
 passport.serializeUser(function (user, cb) {
     cb(null, user.id)
 })
 
-passport.deserializeUser(function (email, cb) {
-    data.getAccountByEmail(email)
+passport.deserializeUser(function (userid, cb) {
+    data.getProfileById(userid)
         .then(function (user) {
             cb(null, user.id)
         })
@@ -102,22 +105,26 @@ app.post('/register', passport.authenticate('register-local', { failureRedirect:
     var account = req.user
     console.log("BODY: ", profiledata, "USER", account)
     data.createProfileData(profiledata, account)
-    res.redirect('/myProfile/'+account.id)
+    res.redirect('/myProfile')
 })
 
 // Login
 app.post('/login', passport.authenticate('login-local', { failureRedirect: '/error' }), function(req, res) {
-    res.redirect('/app/'+req.user.id)
+    console.log('~~~~~~~~~~~~~~~~/login')
+    console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
+    console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ',req.session.passport.user)
+    res.redirect('/app')
 })
 
 // Facebook
 app.get('/auth/facebook',passport.authenticate('facebook'))
-app.get('/auth/facebook/callback',passport.authenticate('facebook', { failureRedirect: '/error' }),function (req, res) {
-    res.redirect('/app/'+req.user.id)
+app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/error' }),function (req, res) {
+    res.redirect('/app')
 })
 
 // Logout
-app.post('/logout', function(req, res){
+app.get('/logout', function(req, res){
+    console.log('logging out')
     req.logout();
     res.redirect('/');
 });
@@ -132,6 +139,9 @@ app.get('/error2', (req, res) => res.send('error creating account'))
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Welcome
 app.get('/', function (req, res) {
+    console.log('~~~~~~~~~~~~~~~~/')
+    console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
+    if(req.session.passport!==undefined){console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ',req.session.passport.user)}
     res.send(buildWelcomeHTML())
 })
 
@@ -145,11 +155,10 @@ app.post('/', function (req, res) {
 
 // My Profile
 app.get('/myProfile', function (req, res) {
-    res.send('No User ID')
-})
-
-app.get('/myProfile/:id', function (req, res) {
-    data.getProfileById(req.params.id)
+    console.log('~~~~~~~~~~~~~~~~/myProfile')
+    console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
+    if(req.session.passport!==undefined){console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ',req.session.passport.user)}
+    data.getProfileById(req.session.passport.user)
         .then(function(result){
             res.send(
                 buildHeaderHTML()+
@@ -163,25 +172,27 @@ app.post('/myProfile', function (req, res) {
 })
 
 // App
-app.get('/app/', function (req, res) {
-    res.send('No User ID')
-})
-
-app.get('/app/:id', function (req, res) {
-Promise.all([data.getListOfProfiles(req.params.id),data.getMatchesById(req.params.id)])
+app.get('/app', function (req, res) {
+    console.log('~~~~~~~~~~~~~~~~/app')
+    console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
+    if(req.session.passport!==undefined){console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ',req.session.passport.user)}
+    Promise.all([data.getListOfProfiles(req.session.passport.user),data.getMatchesById(req.session.passport.user)])
         .then(function(results){
             res.send(
                 buildHeaderHTML()+
-                buildAppHTML(req.params.id, results[0], results[1])+
+                buildAppHTML(req.session.passport.user, results[0], results[1])+
                 buildFooterHTML()
             )
         })
 })
 
 app.post('/app_reaction', function (req, res) {
-    console.log(req.body)
-    data.createALikeDbEntry(req.body.myuserID, req.body.theiruserID, req.body.liked)
-    .then(res.redirect('/app/'+req.body.myuserID))
+    console.log('~~~~~~~~~~~~~~~~/app_reaction')
+    console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
+    if(req.session.passport!==undefined){console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ',req.session.passport.user)}
+    console.log('~~~~~~~~~~~~~~~~req.body',req.body)
+    data.createALikeDbEntry(req.session.passport.user, req.body.theiruserID, req.body.liked)
+        .then(res.redirect('/app'))
 })
 
 
@@ -369,7 +380,7 @@ function buildAppHTML (myuserid, user, arrayOfMatches) {
                   <form class="form-signout" id='logout-form' action="/logout" method="post">  
                       <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
                   </form><br />
-                  <a href="/myProfile/${myuserid}"><h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5></a>
+                  <a href="/myProfile"><h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5></a>
                   <p style="text-align:center; background-color:#ff5050;;">Matches</p><br />
                 
                   <div class="d-flex flex-row" id="matchesContainer" style="flex-wrap: wrap; justify-content:space-around;">
