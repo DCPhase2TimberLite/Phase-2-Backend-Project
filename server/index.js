@@ -137,10 +137,14 @@ app.get('/error2', (req, res) => res.send('error creating account'))
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Welcome
 app.get('/', function (req, res) {
-  console.log('~~~~~~~~~~~~~~~~/')
-  console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
-  if (req.session.passport !== undefined) { console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ', req.session.passport.user) }
-  res.send(buildWelcomeHTML())
+    console.log('~~~~~~~~~~~~~~~~/')
+    console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
+    if(req.session.passport!==undefined){
+        console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ',req.session.passport.user)
+        res.redirect('/app')
+    } else {
+        res.send(buildWelcomeHTML())
+    }
 })
 
 app.post('/', function (req, res) {
