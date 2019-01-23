@@ -167,8 +167,12 @@ app.get('/myProfile', function (req, res) {
         })
 })
   
-app.post('/myProfile', function (req, res) {
-   data.updateProfileData(req)
+app.post('/Preferences', function (req, res) {
+    data.updatePreferences(req)
+})
+
+app.post('/Profile', function (req, res) {
+    data.updateProfile(req)
 })
 
 // App
@@ -436,7 +440,7 @@ function buildMyProfileHTML (user) {
 
                     <p style="text-align:center; background-color:#ff5050;">Preferences</p>
                     
-                    <form method="post" action="/myProfile">
+                    <form method="post" action="/Preferences">
                 
                         <div class="col-auto my-1">
                             <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
@@ -474,13 +478,13 @@ function buildMyProfileHTML (user) {
                                 <div class="card-title" id="profile-age">${user.age}</div>
                             </div>
                         
-                        <form method="post" action="/myProfile">
+                        <form method="post" action="/Profile">
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">About Me:</span>
                             </div>
                             <textarea class="form-control" aria-label="With textarea" name="bio" >${user.bio}</textarea>
-                            <button type="button" class="btn-danger">Save</button>
+                            <input type="submit" class="btn-block btn-danger" data-inline="true" value="Save">
                         </div>
                         </form>
 

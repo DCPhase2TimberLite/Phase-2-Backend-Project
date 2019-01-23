@@ -29,8 +29,11 @@ module.exports = {
     createProfileData: (profiledata, account) => {
         return createProfileData(profiledata, account)
     },
-    updateProfileData: (userData) => {
-        return updateProfileData(userData)
+    updatePreferences: (req) => {
+        return updatePreferences(req)
+    },
+    updateProfile: (req) => {
+        return updateProfile(req)
     },
     createAllMatchesById: (myUserId) => {
         return createAllMatchesById(myUserId)
@@ -160,14 +163,19 @@ function createProfileData(profiledata, account){
     })
 }
 
-function updateProfileData(userData) {
+function updatePreferences(req) {
+    console.log(req)
     return db.profiledata.update({
-        occupation: userData.occupation,
-        city: userData.city,
-        bio: userData.bio,
-        pref_gender: userData.pref_gender,
-        pref_age_min: userData.pref_age_min,
-        pref_age_max: userData.pref_age_max
+        pref_gender: req.body.pref_gender,
+        pref_age_min: req.body.pref_age_min,
+        pref_age_max: req.body.pref_age_max
+    }, {where: { userid:req.session.passport.user }}).then(() => {})
+}
+
+function updateProfile(req) {
+    console.log(req)
+    return db.profiledata.update({
+        bio: req.body.bio
     }, {where: { userid:req.session.passport.user }}).then(() => {})
 }
 
