@@ -21,22 +21,22 @@ app.listen(port, () => console.log('App listening on port ' + port))
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      PASSPORT SETUP
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app.use(express.static('public'));
-app.use(cookieParser());
+app.use(express.static('public'))
+app.use(cookieParser())
 app.use(express.urlencoded())
-app.use(session({secret: 'timber-log-piece-of-wood'}))
-app.use(passport.initialize());
+app.use(session({ secret: 'timber-log-piece-of-wood' }))
+app.use(passport.initialize())
 app.use(passport.session())
 
 passport.serializeUser(function (user, cb) {
-    cb(null, user.id)
+  cb(null, user.id)
 })
 
 passport.deserializeUser(function (userid, cb) {
-    data.getProfileById(userid)
-        .then(function (user) {
-            cb(null, user.id)
-        })
+  data.getProfileById(userid)
+    .then(function (user) {
+      cb(null, user.id)
+    })
 })
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,26 +45,26 @@ passport.deserializeUser(function (userid, cb) {
 const LocalStrategy = require('passport-local').Strategy
 
 passport.use('login-local', new LocalStrategy(function (email, password, done) {
-    console.log('logging in user')
-    data.getAccountByEmail(email)
-        .then(function (user) {
-            if (!user) {
-                console.log('account not found')
-                return done(null, false)
-            }
-            if (user.pass != password) {
-                console.log('!=pass')
-                return done(null, false)
-            }
-            console.log('success')
-            return done(null, user)
-        })
+  console.log('logging in user')
+  data.getAccountByEmail(email)
+    .then(function (user) {
+      if (!user) {
+        console.log('account not found')
+        return done(null, false)
+      }
+      if (user.pass != password) {
+        console.log('!=pass')
+        return done(null, false)
+      }
+      console.log('success')
+      return done(null, user)
+    })
 }))
 
 passport.use('register-local', new LocalStrategy(function (email, password, done) {
-    console.log('registering locally')
-    data.getAccountByEmail(email)
-        .then(function (user) {
+  console.log('registering locally')
+  data.getAccountByEmail(email)
+    .then(function (user) {
             if (!user) {
                 console.log('registering new account')
                 db.account.create({ email: email, pass: password })
@@ -74,7 +74,7 @@ passport.use('register-local', new LocalStrategy(function (email, password, done
                     } 
                     else {
                         console.log("error creating account")
-                        return
+                        
                     }
         })
 }))
@@ -87,118 +87,126 @@ const FACEBOOK_APP_ID = '2188899751372256'
 const FACEBOOK_APP_SECRET = '0092f4fc9e900f72929fc85c3061737b'
 
 passport.use(new FacebookStrategy({
-    clientID: FACEBOOK_APP_ID,
-    clientSecret: FACEBOOK_APP_SECRET,
-    callbackURL: '/auth/facebook/callback'
+  clientID: FACEBOOK_APP_ID,
+  clientSecret: FACEBOOK_APP_SECRET,
+  callbackURL: '/auth/facebook/callback'
 },
-    function (accessToken, refreshToken, profile, cb) {
-        return cb(null, profile)
-    }
+function (accessToken, refreshToken, profile, cb) {
+  return cb(null, profile)
+}
 ))
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      OAUTH ROUTES
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Register
-app.post('/register', passport.authenticate('register-local', { failureRedirect: '/error2' }), function(req, res) {
-    var profiledata = req.body
-    var account = req.user
-    data.createProfileData(profiledata, account)
-    res.redirect('/myProfile')
+app.post('/register', passport.authenticate('register-local', { failureRedirect: '/error2' }), function (req, res) {
+  var profiledata = req.body
+  var account = req.user
+  data.createProfileData(profiledata, account)
+  res.redirect('/myProfile')
 })
 
 // Login
-app.post('/login', passport.authenticate('login-local', { failureRedirect: '/error' }), function(req, res) {
-    console.log('~~~~~~~~~~~~~~~~/login')
-    console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
-    console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ',req.session.passport.user)
-    res.redirect('/app')
+app.post('/login', passport.authenticate('login-local', { failureRedirect: '/error' }), function (req, res) {
+  console.log('~~~~~~~~~~~~~~~~/login')
+  console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
+  console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ', req.session.passport.user)
+  res.redirect('/app')
 })
 
 // Facebook
-app.get('/auth/facebook',passport.authenticate('facebook'))
-app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/error' }),function (req, res) {
-    res.redirect('/app')
+app.get('/auth/facebook', passport.authenticate('facebook'))
+app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/error' }), function (req, res) {
+  res.redirect('/app')
 })
 
 // Logout
-app.get('/logout', function(req, res){
-    console.log('logging out')
-    req.logout();
-    res.redirect('/');
-});
+app.get('/logout', function (req, res) {
+  console.log('logging out')
+  req.logout()
+    res.redirect('/')
+})
 
 // Errors
 app.get('/error', (req, res) => res.send('error logging in'))
 app.get('/error2', (req, res) => res.send('error creating account'))
-
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      EXPRESS ROUTING
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Welcome
 app.get('/', function (req, res) {
-    console.log('~~~~~~~~~~~~~~~~/')
-    console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
-    if(req.session.passport!==undefined){console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ',req.session.passport.user)}
-    res.send(buildWelcomeHTML())
+  console.log('~~~~~~~~~~~~~~~~/')
+  console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
+  if (req.session.passport !== undefined) { console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ', req.session.passport.user) }
+  res.send(buildWelcomeHTML())
 })
 
 app.post('/', function (req, res) {
-    res.send(
-        buildHeaderHTML()+
-        buildMyProfileHTML()+
+  res.send(
+    buildHeaderHTML() +
+        buildMyProfileHTML() +
         buildFooterHTML()
-    )
+  )
 })
 
 // My Profile
 app.get('/myProfile', function (req, res) {
-    console.log('~~~~~~~~~~~~~~~~/myProfile')
-    console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
-    if(req.session.passport!==undefined){console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ',req.session.passport.user)}
-    data.getProfileById(req.session.passport.user)
-        .then(function(result){
-            res.send(
-                buildHeaderHTML()+
-                buildMyProfileHTML(result)+
-                buildFooterHTML()
-            )
-        })
+  console.log('~~~~~~~~~~~~~~~~/myProfile')
+  console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
+  if (req.session.passport !== undefined) { console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ', req.session.passport.user) }
+  data.getProfileById(req.session.passport.user)
+    .then(function (result) {
+      res.send(
+        buildHeaderHTML() +
+        buildMyProfileHTML(result) +
+        buildFooterHTML()
+      )
+    })
 })
-  
+
 app.post('/Preferences', function (req, res) {
-    data.updatePreferences(req)
+  data.updatePreferences(req)
+  res.send(
+    buildHeaderHTML() +
+        buildMyProfileHTML() +
+        buildFooterHTML()
+  )
 })
 
 app.post('/Profile', function (req, res) {
-    data.updateProfile(req)
+  data.updateProfile(req)
+  res.send(
+    buildHeaderHTML() +
+        buildMyProfileHTML() +
+        buildFooterHTML()
+  )
 })
 
 // App
 app.get('/app', function (req, res) {
-    console.log('~~~~~~~~~~~~~~~~/app')
-    console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
-    if(req.session.passport!==undefined){console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ',req.session.passport.user)}
-    Promise.all([data.getListOfProfiles(req.session.passport.user),data.getMatchesById(req.session.passport.user)])
-        .then(function(results){
-            res.send(
-                buildHeaderHTML()+
-                buildAppHTML(req.session.passport.user, results[0], results[1])+
+  console.log('~~~~~~~~~~~~~~~~/app')
+  console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
+  if (req.session.passport !== undefined) { console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ', req.session.passport.user) }
+  Promise.all([data.getListOfProfiles(req.session.passport.user), data.getMatchesById(req.session.passport.user)])
+    .then(function (results) {
+      res.send(
+        buildHeaderHTML() +
+                buildAppHTML(req.session.passport.user, results[0], results[1]) +
                 buildFooterHTML()
-            )
-        })
+      )
+    })
 })
 
 app.post('/app_reaction', function (req, res) {
-    console.log('~~~~~~~~~~~~~~~~/app_reaction')
-    console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
-    if(req.session.passport!==undefined){console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ',req.session.passport.user)}
-    console.log('~~~~~~~~~~~~~~~~req.body',req.body)
-    data.createALikeDbEntry(req.session.passport.user, req.body.theiruserID, req.body.liked)
-        .then(res.redirect('/app'))
+  console.log('~~~~~~~~~~~~~~~~/app_reaction')
+  console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
+  if (req.session.passport !== undefined) { console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ', req.session.passport.user) }
+  console.log('~~~~~~~~~~~~~~~~req.body', req.body)
+  data.createALikeDbEntry(req.session.passport.user, req.body.theiruserID, req.body.liked)
+    .then(res.redirect('/app'))
 })
-
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      HTML Templating
@@ -223,12 +231,12 @@ function createMatchesHTML(arrayOfMatches) {
         })
         return arrayHTML.join('')
     } else {
-        return
+        
     }
 }
 
 function buildHeaderHTML () {
-    return `
+  return `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -252,7 +260,7 @@ function buildHeaderHTML () {
 }
 
 function buildFooterHTML () {
-    return `
+  return `
     <!-- Bootstrap scripts -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -364,10 +372,10 @@ function buildWelcomeHTML () {
 }
 
 function buildAppHTML (myuserid, user, arrayOfMatches) {
-    if (!user){user = {}}
-    if (user.profile_picture == ''){user.profile_picture = defaultPhoto}
+  if (!user) { user = {} }
+  if (user.profile_picture == '') { user.profile_picture = defaultPhoto }
 
-    return `
+  return `
     <body>
       <div class="container-fluid">
           <div class="row">
@@ -415,7 +423,7 @@ function buildAppHTML (myuserid, user, arrayOfMatches) {
 }
 
 function buildMyProfileHTML (user) {
-    return `
+  return `
     <body style="background-color:#686868">
         <div class="container-fluid">
             <div class="row">
