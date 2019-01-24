@@ -419,9 +419,7 @@ function buildAppHTML (myuserid, user, arrayOfMatches) {
           <!-- Main Content -->
           <div class="main-content">
                   <div class="card profile-card">
-                      <object class="card-img-top" data="${user.profile_picture}" type="image/png">
-                          <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
-                      </object>
+                      <img class="card-img-top" src="${user.profile_picture}" onerror="this.onerror=null;this.src='${defaultPhoto}';">
                       <div class="card-body">
                           <div class="d-flex justify-content-between" id="card-header">
                               <div class="card-title" id="profile-name">${user.f_name}</div>
