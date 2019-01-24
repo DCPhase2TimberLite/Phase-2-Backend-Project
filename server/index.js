@@ -50,38 +50,36 @@ passport.deserializeUser(function (userid, cb) {
 const LocalStrategy = require('passport-local').Strategy
 
 passport.use('login-local', new LocalStrategy(function (email, password, done) {
-  console.log('logging in user')
-  data.getAccountByEmail(email)
+    console.log('logging in user')
+    data.getAccountByEmail(email)
     .then(function (user) {
-      if (!user) {
-        console.log('account not found')
-        return done(null, false)
-      }
-      if (user.pass != password) {
-        console.log('!=pass')
-        return done(null, false)
-      }
-      console.log('success')
-      return done(null, user)
+        if (!user) {
+            console.log('account not found')
+            return done(null, false)
+        }
+        if (user.pass != password) {
+            console.log('!=pass')
+            return done(null, false)
+        }
+        console.log('success')
+        return done(null, user)
     })
 }))
 
 passport.use('register-local', new LocalStrategy(function (email, password, done) {
-  console.log('registering locally')
-  data.getAccountByEmail(email)
+    console.log('registering locally')
+    data.getAccountByEmail(email)
     .then(function (user) {
-            if (!user) {
-                console.log('registering new account')
-                db.account.create({ email: email, pass: password })
-                    .then(function(user){
-                        return done(null, user)
-                    })
-                    } 
-                    else {
-                        console.log("error creating account")
-                        
-                    }
-        })
+        if (!user) {
+            console.log('registering new account')
+            data.createAccountByEmail(email, password)
+            .then(function(user){
+                return done(null, user)
+                })
+        } else {
+            console.log("error creating account")
+        }
+    })
 }))
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,18 +112,40 @@ app.post('/register', passport.authenticate('register-local', { failureRedirect:
 
 // Login
 app.post('/login', passport.authenticate('login-local', { failureRedirect: '/error' }), function (req, res) {
-  console.log('~~~~~~~~~~~~~~~~/login')
-  console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
-  console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ', req.session.passport.user)
   res.redirect('/app')
 })
 
 // Facebook
 app.get('/auth/facebook', passport.authenticate('facebook'))
 app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/error' }), function (req, res) {
-    console.log('callback')
-    // Here is where to create the new account if the user's facebookid does not exist
-    res.redirect('/app')
+    console.log('callback', 'req.user: ',req.user)
+    // req.user.id is facebook id
+    data.getAccountByFbId(req.user.id)
+    .then((account) => {
+        if (!account) {
+            console.log('registering new account from facebook...')
+            data.createAccountByFbId(req.user.id)
+            .then((account) => {
+                data.createProfileDataFb(req.user, account)
+                .then((profile) => {
+                    console.log('setting session id from: ', req.session.passport.user)
+                    req.session.passport.user = profile.userid
+                    console.log('setting session id to: ', req.session.passport.user)
+                    return
+                })
+            })
+        } else if (account) {
+            console.log('user found, logging in...')
+            console.log('setting session id from: ', req.session.passport.user)
+            req.session.passport.user = account.id
+            console.log('setting session id to: ', req.session.passport.user)
+            return
+        } else {
+            console.log('error handling fb user')
+            return
+        }
+    })
+    .then(() => {res.redirect('/app')})
 })
 
 // Logout
@@ -142,12 +162,9 @@ app.get('/error2', (req, res) => res.send('error creating account'))
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      EXPRESS ROUTING
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Welcome
+// Welcome (skips if session exists)
 app.get('/', function (req, res) {
-    console.log('~~~~~~~~~~~~~~~~/')
-    console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
     if(req.session.passport!==undefined){
-        console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ',req.session.passport.user)
         res.redirect('/app')
     } else {
         res.send(buildWelcomeHTML())
@@ -155,68 +172,54 @@ app.get('/', function (req, res) {
 })
 
 app.post('/', function (req, res) {
-  res.send(
-    buildHeaderHTML() +
-        buildMyProfileHTML() +
-        buildFooterHTML()
-  )
+    res.send(
+        buildHeaderHTML() +
+            buildMyProfileHTML() +
+            buildFooterHTML()
+    )
 })
 
 // My Profile
 app.get('/myProfile', function (req, res) {
-  console.log('~~~~~~~~~~~~~~~~/myProfile')
-  console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
-  if (req.session.passport !== undefined) { console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ', req.session.passport.user) }
-  data.getProfileById(req.session.passport.user)
+    data.getProfileById(req.session.passport.user)
     .then(function (result) {
-      res.send(
-        buildHeaderHTML() +
-        buildMyProfileHTML(result) +
-        buildFooterHTML()
-      )
+        res.send(
+            buildHeaderHTML() +
+            buildMyProfileHTML(result) +
+            buildFooterHTML()
+        )
     })
 })
 
 app.post('/Preferences', function (req, res) {
-  data.updatePreferences(req)
-  res.send(
-    buildHeaderHTML() +
-        buildMyProfileHTML() +
-        buildFooterHTML()
-  )
+    data.updatePreferences(req)
+    .then(() => {
+        res.redirect('/myProfile')
+    })
 })
 
-app.post('/Profile', function (req, res) {
-  data.updateProfile(req)
-  res.send(
-    buildHeaderHTML() +
-        buildMyProfileHTML() +
-        buildFooterHTML()
-  )
+app.post('/myProfile', function (req, res) {
+    data.updateProfile(req)
+    .then(() => {
+        res.redirect('/myProfile')
+    })
 })
 
 // App
 app.get('/app', function (req, res) {
-  console.log('~~~~~~~~~~~~~~~~/app')
-  console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
-  if (req.session.passport !== undefined) { console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ', req.session.passport.user) }
-  Promise.all([data.getListOfProfiles(req.session.passport.user), data.getMatchesById(req.session.passport.user)])
+    Promise.all([data.getListOfProfiles(req.session.passport.user), data.getMatchesById(req.session.passport.user)])
     .then(function (results) {
-      res.send(
-        buildHeaderHTML() +
-                buildAppHTML(req.session.passport.user, results[0], results[1]) +
-                buildFooterHTML()
-      )
+        res.send(
+            buildHeaderHTML() +
+            buildAppHTML(req.session.passport.user, results[0], results[1]) +
+            buildFooterHTML()
+        )
     })
 })
 
 app.post('/app_reaction', function (req, res) {
-  console.log('~~~~~~~~~~~~~~~~/app_reaction')
-  console.log('~~~~~~~~~~~~~~~~req.session: ', req.session)
-  if (req.session.passport !== undefined) { console.log('~~~~~~~~~~~~~~~~req.session.passport.user: ', req.session.passport.user) }
-  console.log('~~~~~~~~~~~~~~~~req.body', req.body)
-  data.createALikeDbEntry(req.session.passport.user, req.body.theiruserID, req.body.liked)
-    .then(res.redirect('/app'))
+    data.createALikeDbEntry(req.session.passport.user, req.body.theiruserID, req.body.liked)
+        .then(res.redirect('/app'))
 })
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -415,9 +418,7 @@ function buildAppHTML (myuserid, user, arrayOfMatches) {
               <!-- Main Content -->
               <div class="main-content">
                       <div class="card profile-card">
-                          <object class="card-img-top" data="${user.profile_picture}" type="image/png">
-                              <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
-                          </object>
+                      <img class="card-img-top" src="${user.profile_picture}" onerror="this.onerror=null;this.src='${defaultPhoto}';">
                           <div class="card-body">
                               <div class="d-flex justify-content-between" id="card-header">
                                   <div class="card-title" id="profile-name">${user.f_name}</div>
@@ -449,8 +450,8 @@ function buildMyProfileHTML (user) {
             <div class="row">
                 <div class="sidenav" style="background-color:#f9f3f2;">
                     <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
-                    <form>
-                        <input type="button" class="btn-danger" value="Back" onclick="history.back()">
+                    <form method="get" action="/">
+                        <button class="btn-md btn-light btn-block" type="submit">Back</button>
                     </form>
 
                     <form class="form-signout" id='logout-form' action="/logout" method="post">  
@@ -464,7 +465,7 @@ function buildMyProfileHTML (user) {
                         <div class="col-auto my-1">
                             <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
                             <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="pref_gender">
-                            <option selected>Choose one</option>
+                            <option selected value="${user.pref_gender}">Choose one</option>
                             <option value="M">Men &#9794;</option>
                             <option value="F">Women &#9792;</option>
                             <option value="B">Both</option>
@@ -473,10 +474,10 @@ function buildMyProfileHTML (user) {
 
                         <div class="form-row">
                                 <div class="col">
-                                    <input type="integer" class="form-control" id="age-min" name="pref_age_min" placeholder="${user.pref_age_min}">
+                                    <input type="integer" class="form-control" id="age-min" name="pref_age_min" value="${user.pref_age_min}">
                                 </div>
                                 <div class="col">
-                                    <input type="integer" class="form-control" id="age-max" name="pref_age_max" placeholder="${user.pref_age_max}">
+                                    <input type="integer" class="form-control" id="age-max" name="pref_age_max" value="${user.pref_age_max}">
                                 </div>
                         </div>
 
@@ -488,16 +489,14 @@ function buildMyProfileHTML (user) {
                     <h3 style="text-align:center;">Timber - Fall in <i class="far fa-heart"></i></h3>
                     
                     <div class="card profile-card">
-                        <object class="card-img-top" data="${user.profile_picture}" type="image/png">
-                            <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
-                        </object>
+                    <img class="card-img-top" src="${user.profile_picture}" onerror="this.onerror=null;this.src='${defaultPhoto}';">
                         <div class="card-body">
                             <div class="d-flex justify-content-between" id="card-header">
                                 <div class="card-title" id="profile-name">${user.f_name}</div>
                                 <div class="card-title" id="profile-age">${user.age}</div>
                             </div>
                         
-                        <form method="post" action="/Profile">
+                        <form method="post" action="/myProfile">
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">About Me:</span>
