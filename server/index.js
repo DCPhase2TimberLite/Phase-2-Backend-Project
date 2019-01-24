@@ -191,6 +191,18 @@ app.get('/myProfile', function (req, res) {
     })
 })
 
+app.get('/myProfile/:id', function (req, res) {
+    // Backdoor to myProfile
+    data.getProfileById(req.params.id)
+    .then(function (result) {
+        res.send(
+            buildHeaderHTML() +
+            buildMyProfileHTML(result) +
+            buildFooterHTML()
+        )
+    })
+})
+
 app.post('/Preferences', function (req, res) {
     data.updatePreferences(req)
     .then(() => {
@@ -217,6 +229,18 @@ app.get('/app', function (req, res) {
     })
 })
 
+app.get('/app/:id', function (req, res) {
+    // Backdoor to /app
+    Promise.all([data.getListOfProfiles(req.params.id), data.getMatchesById(req.params.id)])
+    .then(function (results) {
+        res.send(
+            buildHeaderHTML() +
+            buildAppHTML(req.params.id, results[0], results[1]) +
+            buildFooterHTML()
+        )
+    })
+})
+
 app.post('/app_reaction', function (req, res) {
     data.createALikeDbEntry(req.session.passport.user, req.body.theiruserID, req.body.liked)
         .then(res.redirect('/app'))
@@ -225,7 +249,7 @@ app.post('/app_reaction', function (req, res) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      HTML Templating
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-const defaultPhoto = './public/style/profile.png'
+const defaultPhoto = '../style/profile.png'
 
 function createMatchesHTML(arrayOfMatches) {
     console.log('creating MatchesHTML...')
@@ -234,11 +258,12 @@ function createMatchesHTML(arrayOfMatches) {
             var matchesCard =     
                 `
                 <div class="card matches" style="width: 150px; max-height: 250px; overflow-y:hidden;">
-                    <img class="card-img-top" src="${user.profile_picture}" alt="User Photo">
+                    <img class="card-img-top" src="${user.profile_picture}" onerror="this.onerror=null;this.src='${defaultPhoto}';">
                     <div class="card-body">
                         <h6 class="card-text" style="font-weight:bold";>${user.f_name}, ${user.age}</h6>
                         <div class="card-text email-text">${user.occupation}, ${user.city}</div>
-                    </div>`
+                    </div>
+                </div>`
     
     // // these vars are for testing purposes only
     // var user1 = {f_name: "Carly", age: 28, email: "carly@yahoo.com", profile_picture:'https://tse4.mm.bing.net/th?id=OIP.R0GCWtJunSCmbLsSyT8-JwHaFZ&w=230&h=170&rs=1&pcl=dddddd&o=5&pid=1.1'};
@@ -409,7 +434,7 @@ function buildAppHTML (myuserid, user, arrayOfMatches) {
                   <a href="/myProfile"><h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5></a>
                   <p style="text-align:center; background-color:#ff5050;;">Matches</p><br />
                 
-                  <div class="d-flex flex-row" id="matchesContainer" style="flex-wrap: wrap; justify-content:space-around;">
+                  <div class="d-flex flex-row align-items-start" id="matchesContainer" style="flex-wrap: wrap; justify-content:space-around;">
                     ${createMatchesHTML(arrayOfMatches)}
                   </div>
 

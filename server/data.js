@@ -60,13 +60,13 @@ module.exports = {
 //                      OFFLINE TESTS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-if(process.argv[2]!==undefined && process.argv[3]!==undefined){
-    for(var i=process.argv[2]; i<process.argv[3];i++){
-        // Run this to populate matches data
-        // Run with: node server/data.js <userfrom> <userto>
-        createAllMatchesById(i).then((result) => {console.log(result)})
-    }
-}
+// if(process.argv[2]!==undefined && process.argv[3]!==undefined){
+//     for(var i=process.argv[2]; i<process.argv[3];i++){
+//         // Run this to populate matches data
+//         // Run with: node server/data.js <userfrom> <userto>
+//         createAllMatchesById(i).then((result) => {console.log(result)}).then(()=>{})
+//     }
+// }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      SEQUELIZE FUNCTIONS
