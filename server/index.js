@@ -434,7 +434,7 @@ function buildAppHTML (myuserid, user, arrayOfMatches) {
                   <a href="/myProfile"><h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5></a>
                   <p style="text-align:center; background-color:#ff5050;;">Matches</p><br />
                 
-                  <div class="d-flex flex-row align-items-start" id="matchesContainer" style="flex-wrap: wrap; justify-content:space-around;">
+                  <div class="d-flex flex-row" id="matchesContainer" style="flex-wrap: wrap; justify-content:space-around;">
                     ${createMatchesHTML(arrayOfMatches)}
                   </div>
 
