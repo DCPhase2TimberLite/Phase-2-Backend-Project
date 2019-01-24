@@ -425,49 +425,49 @@ function buildAppHTML (myuserid, user, arrayOfMatches) {
 
   return `
   <body>
-  <div class="container-fluid">
-      <div class="row">
-          <div class="sidenav">
-              <form class="form-signout" id='logout-form' action="/logout" method="post">  
-                  <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
-              </form>
-              <a href="/myProfile"><h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   My Profile</h4></a>
-              
-              <p style="text-align:center; background-color:#ff5050;;">Matches</p><br />
-            
-              <div class="d-flex flex-row" id="matchesContainer" style="flex-wrap: wrap; justify-content:space-around;">
-                ${createMatchesHTML(arrayOfMatches)}
-              </div>
-
-          </div>
-          
-          <!-- Main Content -->
-          <div class="main-content">
-                  <div class="card profile-card">
-                      <object class="card-img-top" data="${user.profile_picture}" type="image/png">
-                          <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
-                      </object>
-                      <div class="card-body">
-                          <div class="d-flex justify-content-between" id="card-header">
-                              <div class="card-title" id="profile-name">${user.f_name}</div>
-                              <div class="card-title" id="profile-age">${user.age}</div>
-                          </div>
-                      <p class="card-text">${user.bio}</p>
-
-                      <form action="/app_reaction" method="post" id="currentProfile">
-                        <input type="text" name="myuserID" value="${myuserid}" style="display:none;">
-                        <input type="text" name="theiruserID" value="${user.userid}" style="display:none;">
-                        <div class="d-flex justify-content-between" id="card-reactions">
-                            <button type="submit" name="liked" value="false" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
-                            <button type="submit" name="liked" value="true" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></button>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="sidenav">
+                    <form class="form-signout" id='logout-form' action="/logout" method="post">  
+                        <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
+                    </form>
+                    <a href="/myProfile"><h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   My Profile</h4></a>
+                    
+                    <p style="text-align:center; background-color:#ff5050;;">Matches</p><br />
+                  
+                    <div class="d-flex flex-row" id="matchesContainer" style="flex-wrap: wrap; justify-content:space-around;">
+                      ${createMatchesHTML(arrayOfMatches)}
+                    </div>
+  
+                </div>
+                
+                <!-- Main Content -->
+                <div class="main-content">
+                        <div class="card profile-card">
+                            <object class="card-img-top" data="${user.profile_picture}" type="image/png">
+                                <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
+                            </object>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between" id="card-header">
+                                    <div class="card-title" id="profile-name">${user.f_name}</div>
+                                    <div class="card-title" id="profile-age">${user.age}</div>
+                                </div>
+                            <p class="card-text">${user.bio}</p>
+    
+                            <form action="/app_reaction" method="post" id="currentProfile">
+                              <input type="text" name="myuserID" value="${myuserid}" style="display:none;">
+                              <input type="text" name="theiruserID" value="${user.userid}" style="display:none;">
+                              <div class="d-flex justify-content-between" id="card-reactions">
+                                  <button type="submit" name="liked" value="false" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
+                                  <button type="submit" name="liked" value="true" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></button>
+                              </div>
+                              </form>
+                            </div>
                         </div>
-                        </form>
-                      </div>
-                  </div>
-          </div>
-
-      </div>
-  </div>
+                </div>
+    
+            </div>
+        </div>
     `
 }
 
