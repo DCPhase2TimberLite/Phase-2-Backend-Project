@@ -151,8 +151,8 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRe
 // Logout
 app.post('/logout', function (req, res) {
   console.log('logging out')
-  req.logout()
     res.redirect('/')
+    req.logout()
 })
 
 // Errors
@@ -206,14 +206,14 @@ app.get('/myProfile/:id', function (req, res) {
 app.post('/Preferences', function (req, res) {
     data.updatePreferences(req)
     .then(() => {
-        res.redirect('/myProfile')
+        res.redirect('/app')
     })
 })
 
 app.post('/myProfile', function (req, res) {
     data.updateProfile(req)
     .then(() => {
-        res.redirect('/myProfile')
+        res.redirect('/app')
     })
 })
 
@@ -264,16 +264,6 @@ function createMatchesHTML(arrayOfMatches) {
                         <div class="card-text email-text">${user.occupation}, ${user.city}</div>
                     </div>
                 </div>`
-    
-    // // these vars are for testing purposes only
-    // var user1 = {f_name: "Carly", age: 28, email: "carly@yahoo.com", profile_picture:'https://tse4.mm.bing.net/th?id=OIP.R0GCWtJunSCmbLsSyT8-JwHaFZ&w=230&h=170&rs=1&pcl=dddddd&o=5&pid=1.1'};
-    // var user2 = {f_name: "Jason", age: 35, email: "constancio.j@gmail.com", profile_picture:'https://tse4.mm.bing.net/th?id=OIP.y0X9yMuwnd17WPLS1xM0iwHaGC&w=230&h=170&rs=1&pcl=dddddd&o=5&pid=1.1'};
-    // var user3 = {f_name: "Sylvester", age: 31, email: "syllytraveler@qq.com", profile_picture: 'https://tse3.mm.bing.net/th?id=OIP.7S-OpPDXc418jDRANvrfLwHaL1&w=230&h=170&rs=1&pcl=dddddd&o=5&pid=1.1'};
-    // var user4 = {f_name: "Isabel", age: 22, email: "wuryoo@gmail.com", profile_picture: 'https://tse2.mm.bing.net/th?id=OIP.l7H0kyG_4f9uFEl--dCzVAHaFj&w=230&h=170&rs=1&pcl=dddddd&o=5&pid=1.1'};
-    // var user5 = {f_name: "Aubrey", age: 40, email: "sytycd79@aol.com", profile_picture: 'https://tse3.mm.bing.net/th?id=OIF.lqeKriVJxatrn5h5DhCgjg&w=230&h=170&rs=1&pcl=dddddd&o=5&pid=1.1'};
-    // var user6 = {f_name: "Aaron", age: 52, email: "a_a_ron@hotmail.com", profile_picture:'https://tse2.mm.bing.net/th?id=OIP.cgA-o__GfQu6QznspGMK4QHaEi&w=230&h=170&rs=1&pcl=dddddd&o=5&pid=1.1'};
-
-    // var arrayOfMatches = [user1,user2,user3,user4,user5,user6]
 
             return matchesCard;
         })
@@ -428,9 +418,10 @@ function buildAppHTML (myuserid, user, arrayOfMatches) {
       <div class="container-fluid">
           <div class="row">
               <div class="sidenav">
-                  <form class="form-signout" id='logout-form' action="/logout" method="post">  
+                <form class="form-signout" id='logout-form' action="/logout" method="post">  
                       <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
-                  </form><br />
+                  </form>
+              <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
                   <a href="/myProfile"><h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5></a>
                   <p style="text-align:center; background-color:#ff5050;;">Matches</p><br />
                 
@@ -474,15 +465,13 @@ function buildMyProfileHTML (user) {
         <div class="container-fluid">
             <div class="row">
                 <div class="sidenav" style="background-color:#f9f3f2;">
-                    <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
-                    <form method="get" action="/">
-                        <button class="btn-md btn-light btn-block" type="submit">Back</button>
-                    </form>
-
                     <form class="form-signout" id='logout-form' action="/logout" method="post">  
                         <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
                     </form>
-
+                    <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
+                    <form method="get" action="/">
+                    <button class="btn-md btn-light btn-block" type="submit">Back</button>
+                    </form>
                     <p style="text-align:center; background-color:#ff5050;">Preferences</p>
                     
                     <form method="post" action="/Preferences">
@@ -511,7 +500,7 @@ function buildMyProfileHTML (user) {
                         <hr />
                 </div>
                 <div class="main-content">
-                    <h3 style="text-align:center;">Timber - Fall in <i class="far fa-heart"></i></h3>
+                    <h3 style="text-align:center;">Timber - Fall in <i class="far fa-thumbs-up"></i></h3>
                     
                     <div class="card profile-card">
                     <img class="card-img-top" src="${user.profile_picture}" onerror="this.onerror=null;this.src='${defaultPhoto}';">
