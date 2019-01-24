@@ -60,8 +60,12 @@ module.exports = {
 //                      OFFLINE TESTS
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-if(process.argv[2]!==undefined){
-    createAllMatchesById(process.argv[2]).then((result) => {console.log(result)}) // Run this to populate matches data
+if(process.argv[2]!==undefined && process.argv[3]!==undefined){
+    for(var i=process.argv[2]; i<process.argv[3];i++){
+        // Run this to populate matches data
+        // Run with: node server/data.js <userfrom> <userto>
+        createAllMatchesById(i).then((result) => {console.log(result)})
+    }
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
