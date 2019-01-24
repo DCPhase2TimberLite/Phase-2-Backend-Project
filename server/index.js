@@ -29,14 +29,19 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 passport.serializeUser(function (user, cb) {
-  cb(null, user.id)
+    console.log('~~~~~Serializing User~~~~')
+    cb(null, user.id)
 })
 
 passport.deserializeUser(function (userid, cb) {
-  data.getProfileById(userid)
-    .then(function (user) {
-      cb(null, user.id)
-    })
+    console.log('~~~~~Deserializing User~~~~')
+    data.getProfileById(userid)
+        .then(function (user) {
+            cb(null, user.id)
+        })
+        .catch((err) => {
+            console.log('error logging in: ', err)
+        })
 })
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,15 +123,17 @@ app.post('/login', passport.authenticate('login-local', { failureRedirect: '/err
 // Facebook
 app.get('/auth/facebook', passport.authenticate('facebook'))
 app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/error' }), function (req, res) {
-  res.redirect('/app')
+    console.log('callback')
+    // Here is where to create the new account if the user's facebookid does not exist
+    res.redirect('/app')
 })
 
 // Logout
-app.post('/logout', function(req, res){
-    console.log('logging out')
-    req.logout();
-    res.redirect('/');
-});
+app.post('/logout', function (req, res) {
+  console.log('logging out')
+  req.logout()
+    res.redirect('/')
+})
 
 // Errors
 app.get('/error', (req, res) => res.send('error logging in'))

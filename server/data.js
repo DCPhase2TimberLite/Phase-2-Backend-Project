@@ -23,6 +23,12 @@ module.exports = {
     getMatchesById: (myUserId) => {
         return findMyMatchesById (myUserId)
     },
+    createAccountByEmail: (email,password) => {
+        return db.account.create({ email: email, pass: password })
+    },
+    createAccountByFbId: (facebookid) => {
+        return db.account.create({facebookid: facebookid})
+    },
     createALikeDbEntry: (myUserId, theirUserId, liked) => {
         return upsertLike(myUserId, theirUserId, liked).then(() => {
             return isItAMatch(myUserId, theirUserId)}).then((result) => {
@@ -62,7 +68,9 @@ function findAccountByEmail (email) {
 }
 
 function findProfileById (id) {
-    return db.profiledata.findOne({where: {userid:id}})
+    var columnName = 'userid'
+    if(id>2000000000){columnName='facebookid'}
+    return db.profiledata.findOne({where: {[columnName]:id}})
         .then((userData) => {
             userData.age = getAge(userData.birthday)
             return userData
