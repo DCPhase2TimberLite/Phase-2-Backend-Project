@@ -532,8 +532,8 @@ function buildMyProfileHTML (user) {
                         <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
                     </form>
                     <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
-                    <form>
-                        <input type="button" class="btn-danger" value="Back" onclick="history.back()">
+                    <form method="get" action="/">
+                          <button class="btn-md btn-light btn-block" type="submit">Back</button>
                     </form>
 
                     <p style="text-align:center; background-color:#ff5050;">Preferences</p>
