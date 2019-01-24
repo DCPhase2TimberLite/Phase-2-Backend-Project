@@ -23,18 +23,17 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="sidenav" style="background-color:#f9f3f2;">
+                    <form class="form-signout" id='logout-form' action="/logout" method="post">  
+                        <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
+                    </form>
                     <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
                     <form>
                         <input type="button" class="btn-danger" value="Back" onclick="history.back()">
                     </form>
 
-                    <form class="form-signout" id='logout-form' action="/logout" method="post">  
-                        <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
-                    </form>
-
                     <p style="text-align:center; background-color:#ff5050;">Preferences</p>
                     
-                    <form method="post" action="/Preferences">
+                    <form method="post" action="/Preferences"><br />
                 
                         <div class="col-auto my-1">
                             <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
@@ -44,16 +43,18 @@
                             <option value="F">Women &#9792;</option>
                             <option value="B">Both</option>
                             </select>
-                        </div>
+                        </div><br /><br />
 
                         <div class="form-row">
                                 <div class="col">
+                                    <label for="age-min">Minimum Age:</label>
                                     <input type="integer" class="form-control" id="age-min" name="pref_age_min" placeholder="${user.pref_age_min}">
                                 </div>
                                 <div class="col">
+                                    <label for="age-max">Maximum Age:</label>
                                     <input type="integer" class="form-control" id="age-max" name="pref_age_max" placeholder="${user.pref_age_max}">
                                 </div>
-                        </div>
+                        </div><br /><br /><br />
 
                         <input type="submit" class="btn-block btn-danger" data-inline="true" value="Submit">
                         </form>

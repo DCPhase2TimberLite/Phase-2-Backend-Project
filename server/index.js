@@ -399,72 +399,437 @@ function buildAppHTML (myuserid, user, arrayOfMatches) {
   if (user.profile_picture == '') { user.profile_picture = defaultPhoto }
 
   return `
-    <body>
-      <div class="container-fluid">
-          <div class="row">
-              <div class="sidenav">
-                  <form class="form-signout" id='logout-form' action="/logout" method="post">  
-                      <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
-                  </form><br />
-                  <a href="/myProfile"><h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5></a>
-                  <p style="text-align:center; background-color:#ff5050;;">Matches</p><br />
-                
-                  <div class="d-flex flex-row" id="matchesContainer" style="flex-wrap: wrap; justify-content:space-around;">
-                    ${createMatchesHTML(arrayOfMatches)}
-                  </div>
-
-              </div>
+  <body>
+  <div class="container-fluid">
+      <div class="row">
+          <div class="sidenav">
+              <form class="form-signout" id='logout-form' action="/logout" method="post">  
+                  <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
+              </form>
+              <a href="/myProfile"><h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   My Profile</h4></a>
               
-              <!-- Main Content -->
-              <div class="main-content">
-                      <div class="card profile-card">
-                      <img class="card-img-top" src="${user.profile_picture}" onerror="this.onerror=null;this.src='${defaultPhoto}';">
-                          <div class="card-body">
-                              <div class="d-flex justify-content-between" id="card-header">
-                                  <div class="card-title" id="profile-name">${user.f_name}</div>
-                                  <div class="card-title" id="profile-age">${user.age}</div>
-                              </div>
-                          <p class="card-text">${user.bio}</p>
-  
-                          <form action="/app_reaction" method="post" id="currentProfile">
-                            <input type="text" name="myuserID" value="${myuserid}" style="display:none;">
-                            <input type="text" name="theiruserID" value="${user.userid}" style="display:none;">
-                            <div class="d-flex justify-content-between" id="card-reactions">
-                                <button type="submit" name="liked" value="false" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
-                                <button type="submit" name="liked" value="true" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></button>
-                            </div>
-                            </form>
-                          </div>
-                      </div>
+              <p style="text-align:center; background-color:#ff5050;;">Matches</p><br />
+            
+              <div class="d-flex flex-row" id="matchesContainer" style="flex-wrap: wrap; justify-content:space-around;">
+                ${createMatchesHTML(arrayOfMatches)}
               </div>
-  
+
           </div>
+          
+          <!-- Main Content -->
+          <div class="main-content">
+                  <div class="card profile-card">
+                      <object class="card-img-top" data="${user.profile_picture}" type="image/png">
+                          <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
+                      </object>
+                      <div class="card-body">
+                          <div class="d-flex justify-content-between" id="card-header">
+                              <div class="card-title" id="profile-name">${user.f_name}</div>
+                              <div class="card-title" id="profile-age">${user.age}</div>
+                          </div>
+                      <p class="card-text">${user.bio}</p>
+
+                      <form action="/app_reaction" method="post" id="currentProfile">
+                        <input type="text" name="myuserID" value="${myuserid}" style="display:none;">
+                        <input type="text" name="theiruserID" value="${user.userid}" style="display:none;">
+                        <div class="d-flex justify-content-between" id="card-reactions">
+                            <button type="submit" name="liked" value="false" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
+                            <button type="submit" name="liked" value="true" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></button>
+                        </div>
+                        </form>
+                      </div>
+                  </div>
+          </div>
+
       </div>
+  </div>
     `
 }
 
 function buildMyProfileHTML (user) {
   return `
-    <body style="background-color:#686868">
+  <body style="background-color:#686868">
+  <div class="container-fluid">
+      <div class="row">
+          <div class="sidenav" style="background-color:#f9f3f2;">
+              <form class="form-signout" id='logout-form' action="/logout" method="post">  
+                  <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
+              </form>
+              <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
+              <form>
+                  <input type="button" class="btn-danger" value="Back" onclick="history.back()">
+              </form>
+
+              <p style="text-align:center; background-color:#ff5050;">Preferences</p>
+              
+              <form method="post" action="/Preferences"><br />
+          
+                  <div class="col-auto my-1">
+                      <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
+                      <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="pref_gender">
+                      <option selected>Choose one</option>
+                      <option value="M">Men &#9794;</option>
+                      <option value="F">Women &#9792;</option>
+                      <option value="B">Both</option>
+                      </select>
+                  </div><br /><br />
+
+                  <div class="form-row">
+                          <div class="col">
+                              <label for="age-min">Minimum Age:</label>
+                              <input type="integer" class="form-control" id="age-min" name="pref_age_min" placeholder="${user.pref_age_min}">
+                          </div>
+                          <div class="col">
+                              <label for="age-max">Maximum Age:</label>
+                              <input type="integer" class="form-control" id="age-max" name="pref_age_max" placeholder="${user.pref_age_max}">
+                          </div>
+                  </div><br /><br /><br />
+
+                  <input type="submit" class="btn-block btn-danger" data-inline="true" value="Submit">
+                  </form>
+                  <hr />
+          </div>
+          <div class="main-content">
+              <h3 style="text-align:center;">Timber - Fall in <i class="far fa-heart"></i></h3>
+              
+              <div class="card profile-card">
+                  <object class="card-img-top" data="${user.profile_picture}" type="image/png">
+                      <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
+                  </object>
+                  <div class="card-body">
+                      <div class="d-flex justify-content-between" id="card-header">
+                          <div class="card-title" id="profile-name">${user.f_name}</div>
+                          <div class="card-title" id="profile-age">${user.age}</div>
+                      </div>
+                  
+                  <form method="post" action="/Profile">
+                  <div class="input-group">
+                      <div class="input-group-prepend">
+                          <span class="input-group-text">About Me:</span>
+                      </div>
+                      <textarea class="form-control" aria-label="With textarea" name="bio" >${user.bio}</textarea>
+                      <input type="submit" class="btn-block btn-danger" data-inline="true" value="Save">
+                  </div>
+                  </form>
+
+                  </div>
+              </div>
+              </div>
+
+              </div>
+          
+          
+          </div>
+      </div>
+  </div>
+
+</div> 
+
+    </div>  <form method="post" action="/Preferences">
+                <body style="background-color:#686868">
         <div class="container-fluid">
             <div class="row">
                 <div class="sidenav" style="background-color:#f9f3f2;">
-                    <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
-                    <form method="get" action="/">
-                        <button class="btn-md btn-light btn-block" type="submit">Back</button>
-                    </form>
-
                     <form class="form-signout" id='logout-form' action="/logout" method="post">  
                         <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
+                    </form>
+                    <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
+                    <form>
+                        <input type="button" class="btn-danger" value="Back" onclick="history.back()">
                     </form>
 
                     <p style="text-align:center; background-color:#ff5050;">Preferences</p>
                     
-                    <form method="post" action="/Preferences">
+                    <form method="post" action="/Preferences"><br />
                 
                         <div class="col-auto my-1">
                             <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
                             <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="pref_gender">
+                            <option selected>Choose one</option>
+                            <option value="M">Men &#9794;</option>
+                            <option value="F">Women &#9792;</option>
+                            <option value="B">Both</option>
+                            </select>
+                        </div><br /><br />
+
+                        <div class="form-row">
+                                <div class="col">
+                                    <label for="age-min">Minimum Age:</label>
+                                    <input type="integer" class="form-control" id="age-min" name="pref_age_min" placeholder="${user.pref_age_min}">
+                                </div>
+                                <div class="col">
+                                    <label for="age-max">Maximum Age:</label>
+                                    <input type="integer" class="form-control" id="age-max" name="pref_age_max" placeholder="${user.pref_age_max}">
+                                </div>
+                        </div><br /><br /><br />
+
+                        <input type="submit" class="btn-block btn-danger" data-inline="true" value="Submit">
+                        </form>
+                        <hr />
+                </div>
+                <div class="main-content">
+                    <h3 style="text-align:center;">Timber - Fall in <i class="far fa-heart"></i></h3>
+                    
+                    <div class="card profile-card">
+                        <object class="card-img-top" data="${user.profile_picture}" type="image/png">
+                            <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
+                        </object>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between" id="card-header">
+                                <div class="card-title" id="profile-name">${user.f_name}</div>
+                                <div class="card-title" id="profile-age">${user.age}</div>
+                            </div>
+                        
+                        <form method="post" action="/Profile">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">About Me:</span>
+                            </div>
+                            <textarea class="form-control" aria-label="With textarea" name="bio" >${user.bio}</textarea>
+                            <input type="submit" class="btn-block btn-danger" data-inline="true" value="Save">
+                        </div>
+                        </form>
+
+                        </div>
+                    </div>
+                    </div>
+
+                    </div>
+                
+                
+                </div>
+            </div>
+        </div>
+
+    </div> 
+                   <body style="background-color:#686868">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="sidenav" style="background-color:#f9f3f2;">
+                    <form class="form-signout" id='logout-form' action="/logout" method="post">  
+                        <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
+                    </form>
+                    <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
+                    <form>
+                        <input type="button" class="btn-danger" value="Back" onclick="history.back()">
+                    </form>
+
+                    <p style="text-align:center; background-color:#ff5050;">Preferences</p>
+                    
+                    <form method="post" action="/Preferences"><br />
+                
+                        <div class="col-auto my-1">
+                            <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
+                            <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="pref_gender">
+                            <option selected>Choose one</option>
+                            <option value="M">Men &#9794;</option>
+                            <option value="F">Women &#9792;</option>
+                            <option value="B">Both</option>
+                            </select>
+                        </div><br /><br />
+
+                        <div class="form-row">
+                                <div class="col">
+                                    <label for="age-min">Minimum Age:</label>
+                                    <input type="integer" class="form-control" id="age-min" name="pref_age_min" placeholder="${user.pref_age_min}">
+                                </div>
+                                <div class="col">
+                                    <label for="age-max">Maximum Age:</label>
+                                    <input type="integer" class="form-control" id="age-max" name="pref_age_max" placeholder="${user.pref_age_max}">
+                                </div>
+                        </div><br /><br /><br />
+
+                        <input type="submit" class="btn-block btn-danger" data-inline="true" value="Submit">
+                        </form>
+                        <hr />
+                </div>
+                <div class="main-content">
+                    <h3 style="text-align:center;">Timber - Fall in <i class="far fa-heart"></i></h3>
+                    
+                    <div class="card profile-card">
+                        <object class="card-img-top" data="${user.profile_picture}" type="image/png">
+                            <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
+                        </object>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between" id="card-header">
+                                <div class="card-title" id="profile-name">${user.f_name}</div>
+                                <div class="card-title" id="profile-age">${user.age}</div>
+                            </div>
+                        
+                        <form method="post" action="/Profile">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">About Me:</span>
+                            </div>
+                            <textarea class="form-control" aria-label="With textarea" name="bio" >${user.bio}</textarea>
+                            <input type="submit" class="btn-block btn-danger" data-inline="true" value="Save">
+                        </div>
+                        </form>
+
+                        </div>
+                    </div>
+                    </div>
+
+                    </div>
+                
+                
+                </div>
+            </div>
+        </div>
+
+    </div>      <div class="col-auto my-1">
+                   <body style="background-color:#686868">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="sidenav" style="background-color:#f9f3f2;">
+                    <form class="form-signout" id='logout-form' action="/logout" method="post">  
+                        <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
+                    </form>
+                    <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
+                    <form>
+                        <input type="button" class="btn-danger" value="Back" onclick="history.back()">
+                    </form>
+
+                    <p style="text-align:center; background-color:#ff5050;">Preferences</p>
+                    
+                    <form method="post" action="/Preferences"><br />
+                
+                        <div class="col-auto my-1">
+                            <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
+                            <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="pref_gender">
+                            <option selected>Choose one</option>
+                            <option value="M">Men &#9794;</option>
+                            <option value="F">Women &#9792;</option>
+                            <option value="B">Both</option>
+                            </select>
+                        </div><br /><br />
+
+                        <div class="form-row">
+                                <div class="col">
+                                    <label for="age-min">Minimum Age:</label>
+                                    <input type="integer" class="form-control" id="age-min" name="pref_age_min" placeholder="${user.pref_age_min}">
+                                </div>
+                                <div class="col">
+                                    <label for="age-max">Maximum Age:</label>
+                                    <input type="integer" class="form-control" id="age-max" name="pref_age_max" placeholder="${user.pref_age_max}">
+                                </div>
+                        </div><br /><br /><br />
+
+                        <input type="submit" class="btn-block btn-danger" data-inline="true" value="Submit">
+                        </form>
+                        <hr />
+                </div>
+                <div class="main-content">
+                    <h3 style="text-align:center;">Timber - Fall in <i class="far fa-heart"></i></h3>
+                    
+                    <div class="card profile-card">
+                        <object class="card-img-top" data="${user.profile_picture}" type="image/png">
+                            <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
+                        </object>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between" id="card-header">
+                                <div class="card-title" id="profile-name">${user.f_name}</div>
+                                <div class="card-title" id="profile-age">${user.age}</div>
+                            </div>
+                        
+                        <form method="post" action="/Profile">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">About Me:</span>
+                            </div>
+                            <textarea class="form-control" aria-label="With textarea" name="bio" >${user.bio}</textarea>
+                            <input type="submit" class="btn-block btn-danger" data-inline="true" value="Save">
+                        </div>
+                        </form>
+
+                        </div>
+                    </div>
+                    </div>
+
+                    </div>
+                
+                
+                </div>
+            </div>
+        </div>
+
+    </div>          <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
+                   <body style="background-color:#686868">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="sidenav" style="background-color:#f9f3f2;">
+                    <form class="form-signout" id='logout-form' action="/logout" method="post">  
+                        <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
+                    </form>
+                    <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
+                    <form>
+                        <input type="button" class="btn-danger" value="Back" onclick="history.back()">
+                    </form>
+
+                    <p style="text-align:center; background-color:#ff5050;">Preferences</p>
+                    
+                    <form method="post" action="/Preferences"><br />
+                
+                        <div class="col-auto my-1">
+                            <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
+                            <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="pref_gender">
+                            <option selected>Choose one</option>
+                            <option value="M">Men &#9794;</option>
+                            <option value="F">Women &#9792;</option>
+                            <option value="B">Both</option>
+                            </select>
+                        </div><br /><br />
+
+                        <div class="form-row">
+                                <div class="col">
+                                    <label for="age-min">Minimum Age:</label>
+                                    <input type="integer" class="form-control" id="age-min" name="pref_age_min" placeholder="${user.pref_age_min}">
+                                </div>
+                                <div class="col">
+                                    <label for="age-max">Maximum Age:</label>
+                                    <input type="integer" class="form-control" id="age-max" name="pref_age_max" placeholder="${user.pref_age_max}">
+                                </div>
+                        </div><br /><br /><br />
+
+                        <input type="submit" class="btn-block btn-danger" data-inline="true" value="Submit">
+                        </form>
+                        <hr />
+                </div>
+                <div class="main-content">
+                    <h3 style="text-align:center;">Timber - Fall in <i class="far fa-heart"></i></h3>
+                    
+                    <div class="card profile-card">
+                        <object class="card-img-top" data="${user.profile_picture}" type="image/png">
+                            <img class="card-img-top" src="${defaultPhoto}" alt="Card image cap">
+                        </object>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between" id="card-header">
+                                <div class="card-title" id="profile-name">${user.f_name}</div>
+                                <div class="card-title" id="profile-age">${user.age}</div>
+                            </div>
+                        
+                        <form method="post" action="/Profile">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">About Me:</span>
+                            </div>
+                            <textarea class="form-control" aria-label="With textarea" name="bio" >${user.bio}</textarea>
+                            <input type="submit" class="btn-block btn-danger" data-inline="true" value="Save">
+                        </div>
+                        </form>
+
+                        </div>
+                    </div>
+                    </div>
+
+                    </div>
+                
+                
+                </div>
+            </div>
+        </div>
+
+    </div>          <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="pref_gender">
                             <option selected value="${user.pref_gender}">Choose one</option>
                             <option value="M">Men &#9794;</option>
                             <option value="F">Women &#9792;</option>
