@@ -14,6 +14,9 @@ module.exports = {
     getAccountByEmail: (myEmail) => {
         return findAccountByEmail(myEmail)
     },
+    getAccountByFbId: (facebookid) => {
+        return findAccountByFbId(facebookid)
+    },
     getProfileById: (myUserId) => {
         return findProfileById(myUserId)
     },
@@ -23,14 +26,23 @@ module.exports = {
     getMatchesById: (myUserId) => {
         return findMyMatchesById (myUserId)
     },
+    createAccountByEmail: (email,password) => {
+        return db.account.create({ email: email, pass: password })
+    },
+    createAccountByFbId: (facebookid) => {
+        return db.account.create({facebookid: facebookid})
+    },
+    createProfileData: (profiledata, account) => {
+        return createProfileData(profiledata, account)
+    },
+    createProfileDataFb: (profiledata, account) => {
+        return createProfileDataFb(profiledata, account)
+    },
     createALikeDbEntry: (myUserId, theirUserId, liked) => {
         return upsertLike(myUserId, theirUserId, liked).then(() => {
             return isItAMatch(myUserId, theirUserId)}).then((result) => {
                 if(result.length==2){
                     return Promise.all([createMatches(myUserId, theirUserId),createMatches(theirUserId, myUserId)])}})
-    },
-    createProfileData: (profiledata, account) => {
-        return createProfileData(profiledata, account)
     },
     updatePreferences: (req) => {
         return updatePreferences(req)
@@ -58,6 +70,12 @@ if(process.argv[2]!==undefined){
 function findAccountByEmail (email) {
     return db.account.findOne({
         where: {email:email}
+    })
+}
+
+function findAccountByFbId (facebookid) {
+    return db.account.findOne({
+        where: {facebookid: facebookid}
     })
 }
 
@@ -140,7 +158,6 @@ function filterProfilesByPreferences(myData, seenArr){
     const newestBirthdate = getBirthday(myData.pref_age_min)
     const oldestBirthdate = getBirthday(myData.pref_age_max)
     console.log('My name is',myData.f_name, myData.l_name, ', I am a',myAge,'year old',myData.gender,'living in',myData.city,'and I am looking for a',myData.pref_gender,'born between the dates of',oldestBirthdate,'and',newestBirthdate)
-    
     // Create Gender Arrays
     var myGenderArr
     if (myData.gender=='B'){
@@ -154,7 +171,6 @@ function filterProfilesByPreferences(myData, seenArr){
     } else {
         prefGenderArr=[myData.pref_gender]
     }
-
     // Run Sequelize Query to find users that match my preferences and I match theirs
     return db.profiledata.findAll({
         where: {
@@ -176,13 +192,25 @@ function filterProfilesByPreferences(myData, seenArr){
     })
 }
 
-function createProfileData(profiledata, account){
-    db.profiledata.create({
+function createProfileData (profiledata, account) {
+    return db.profiledata.create({
         userid: account.id,
         f_name: profiledata.first_name,
         gender: profiledata.genderOptions,
-        //     //profile_picture: userProfile.profile_picture
+        // profile_picture: userProfile.profile_picture
         birthday: profiledata.birthday
+    })
+}
+
+function createProfileDataFb (profiledata, account) {
+    var fbFirstName = profiledata.displayName
+    fbFirstName = fbFirstName.slice(0, fbFirstName.indexOf(' '))
+    return db.profiledata.create({
+        userid: account.id,
+        f_name: fbFirstName,
+        gender: profiledata.gender
+        // profile_picture: userProfile.profile_picture
+        // birthday: profiledata.birthday
     })
 }
 
@@ -192,14 +220,14 @@ function updatePreferences(req) {
         pref_gender: req.body.pref_gender,
         pref_age_min: req.body.pref_age_min,
         pref_age_max: req.body.pref_age_max
-    }, {where: { userid:req.session.passport.user }}).then(() => {})
+    }, {where: { userid:req.session.passport.user }})
 }
 
 function updateProfile(req) {
     console.log(req)
     return db.profiledata.update({
         bio: req.body.bio
-    }, {where: { userid:req.session.passport.user }}).then(() => {})
+    }, {where: { userid:req.session.passport.user }})
 }
 
 function createMatches (myUserId, theirUserId){

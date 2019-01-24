@@ -4,13 +4,19 @@ module.exports = (sequelize, DataTypes) => {
     email: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: true,
+        notEmpty: false,
       }
     },
     pass: {
       type: DataTypes.STRING,
       validate: {
-        notEmpty: true,
+        notEmpty: false,
+      }
+    },
+    facebookid: {
+      type: DataTypes.BIGINT,
+      validate: {
+        notEmpty: false,
       }
     },
   }, {});
