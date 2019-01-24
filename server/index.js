@@ -122,11 +122,11 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRe
 })
 
 // Logout
-app.get('/logout', function (req, res) {
-  console.log('logging out')
-  req.logout()
-    res.redirect('/')
-})
+app.post('/logout', function(req, res){
+    console.log('logging out')
+    req.logout();
+    res.redirect('/');
+});
 
 // Errors
 app.get('/error', (req, res) => res.send('error logging in'))
@@ -441,7 +441,7 @@ function buildMyProfileHTML (user) {
         <div class="container-fluid">
             <div class="row">
                 <div class="sidenav" style="background-color:#f9f3f2;">
-                    <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   My Profile</h5>
+                    <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
                     <form>
                         <input type="button" class="btn-danger" value="Back" onclick="history.back()">
                     </form>
