@@ -151,8 +151,8 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRe
 // Logout
 app.post('/logout', function (req, res) {
   console.log('logging out')
-    res.redirect('/')
-    req.logout()
+  req.logout()  
+  res.redirect('/')
 })
 
 // Errors
@@ -165,9 +165,13 @@ app.get('/error2', (req, res) => res.send('error creating account'))
 // Welcome (skips if session exists)
 app.get('/', function (req, res) {
     if(req.session.passport!==undefined){
+        if(req.session.passport.user!==undefined){
         res.redirect('/app')
+        } else {
+            res.send(buildWelcomeHTML())
+        }
     } else {
-        res.send(buildWelcomeHTML())
+            res.send(buildWelcomeHTML())
     }
 })
 
@@ -191,54 +195,34 @@ app.get('/myProfile', function (req, res) {
     })
 })
 
-app.get('/myProfile/:id', function (req, res) {
-    // Backdoor to myProfile
-    data.getProfileById(req.params.id)
-    .then(function (result) {
-        res.send(
-            buildHeaderHTML() +
-            buildMyProfileHTML(result) +
-            buildFooterHTML()
-        )
-    })
-})
-
 app.post('/Preferences', function (req, res) {
     data.updatePreferences(req)
     .then(() => {
-        res.redirect('/app')
+        res.redirect('/myProfile')
     })
 })
 
 app.post('/myProfile', function (req, res) {
     data.updateProfile(req)
     .then(() => {
-        res.redirect('/app')
+        res.redirect('/myProfile')
     })
 })
 
 // App
 app.get('/app', function (req, res) {
-    Promise.all([data.getListOfProfiles(req.session.passport.user), data.getMatchesById(req.session.passport.user)])
-    .then(function (results) {
-        res.send(
-            buildHeaderHTML() +
-            buildAppHTML(req.session.passport.user, results[0], results[1]) +
-            buildFooterHTML()
-        )
-    })
-})
-
-app.get('/app/:id', function (req, res) {
-    // Backdoor to /app
-    Promise.all([data.getListOfProfiles(req.params.id), data.getMatchesById(req.params.id)])
-    .then(function (results) {
-        res.send(
-            buildHeaderHTML() +
-            buildAppHTML(req.params.id, results[0], results[1]) +
-            buildFooterHTML()
-        )
-    })
+    if(req.session.passport!==undefined){
+        Promise.all([data.getListOfProfiles(req.session.passport.user), data.getMatchesById(req.session.passport.user)])
+        .then(function (results) {
+            res.send(
+                buildHeaderHTML() +
+                buildAppHTML(req.session.passport.user, results[0], results[1]) +
+                buildFooterHTML()
+            )
+        })
+    } else {
+        res.send(buildWelcomeHTML())
+    }
 })
 
 app.post('/app_reaction', function (req, res) {
