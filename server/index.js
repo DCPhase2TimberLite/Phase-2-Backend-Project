@@ -460,7 +460,7 @@ function buildMyProfileHTML (user) {
                     </form>
                     <p style="text-align:center; background-color:#ff5050;">Preferences</p>
                     
-                    <form method="post" action="/Preferences">
+                    <form method="post" action="/Preferences"><br />
                 
                         <div class="col-auto my-1">
                             <label style="color:#000;" class="mr-sm-2" for="inlineFormCustomSelect">I am looking for:</label>
@@ -470,16 +470,18 @@ function buildMyProfileHTML (user) {
                             <option value="F">Women &#9792;</option>
                             <option value="B">Both</option>
                             </select>
-                        </div>
+                        </div><br /><br />
 
                         <div class="form-row">
                                 <div class="col">
+                                    <label for="age-min">Minimum Age:</label>
                                     <input type="integer" class="form-control" id="age-min" name="pref_age_min" value="${user.pref_age_min}">
                                 </div>
                                 <div class="col">
+                                    <label for="age-max">Maximum Age:</label>
                                     <input type="integer" class="form-control" id="age-max" name="pref_age_max" value="${user.pref_age_max}">
                                 </div>
-                        </div>
+                        </div><br /><br /><br />
 
                         <input type="submit" class="btn-block btn-danger" data-inline="true" value="Submit">
                         </form>
