@@ -267,7 +267,8 @@ function isItAMatch (myUserId, theirUserId){
     return db.like.findAll({
         where: {
             userid_A: [myUserId, theirUserId],
-            userid_B: [myUserId, theirUserId]
+            userid_B: [myUserId, theirUserId],
+            liked: true
         }
     })
 }

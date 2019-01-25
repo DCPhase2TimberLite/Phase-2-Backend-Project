@@ -191,18 +191,6 @@ app.get('/myProfile', function (req, res) {
     })
 })
 
-app.get('/myProfile/:id', function (req, res) {
-    // Backdoor to myProfile
-    data.getProfileById(req.params.id)
-    .then(function (result) {
-        res.send(
-            buildHeaderHTML() +
-            buildMyProfileHTML(result) +
-            buildFooterHTML()
-        )
-    })
-})
-
 app.post('/Preferences', function (req, res) {
     data.updatePreferences(req)
     .then(() => {
@@ -224,18 +212,6 @@ app.get('/app', function (req, res) {
         res.send(
             buildHeaderHTML() +
             buildAppHTML(req.session.passport.user, results[0], results[1]) +
-            buildFooterHTML()
-        )
-    })
-})
-
-app.get('/app/:id', function (req, res) {
-    // Backdoor to /app
-    Promise.all([data.getListOfProfiles(req.params.id), data.getMatchesById(req.params.id)])
-    .then(function (results) {
-        res.send(
-            buildHeaderHTML() +
-            buildAppHTML(req.params.id, results[0], results[1]) +
             buildFooterHTML()
         )
     })
