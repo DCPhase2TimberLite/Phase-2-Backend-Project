@@ -237,6 +237,42 @@ app.post('/app_reaction', function (req, res) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const defaultPhoto = '../style/profile.png'
 
+function createCardsHTML(myuserid, user) {
+    var Card
+    console.log("Creating cards", user)   
+    if (user.userid !== undefined) {
+        Card =     
+            `
+            <div class="card profile-card">
+            <img class="card-img-top" src="${user.profile_picture}" onerror="this.onerror=null;this.src='${defaultPhoto}';">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between" id="card-header">
+                        <div class="card-title" id="profile-name">${user.f_name}</div>
+                        <div class="card-title" id="profile-age">${user.age}</div>
+                    </div>
+                <p class="card-text">${user.bio}</p>
+                <form action="/app_reaction" method="post" id="currentProfile">
+                    <input type="text" name="myuserID" value="${myuserid}" style="display:none;">
+                    <input type="text" name="theiruserID" value="${user.userid}" style="display:none;">
+                    <div class="d-flex justify-content-between" id="card-reactions">
+                        <button type="submit" name="liked" value="false" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
+                        <button type="submit" name="liked" value="true" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+            `
+        return Card;
+    } 
+    else {      
+        return `
+        <div class="card profile-card">
+            "Whoa Casanova! We're fresh out of results! Check back later"
+        </div>
+        `
+    }
+}
+
 function createMatchesHTML(arrayOfMatches) {
     console.log('creating MatchesHTML...')
     if (arrayOfMatches){
@@ -419,25 +455,7 @@ function buildAppHTML (myuserid, user, arrayOfMatches) {
               
               <!-- Main Content -->
               <div class="main-content">
-                      <div class="card profile-card">
-                      <img class="card-img-top" src="${user.profile_picture}" onerror="this.onerror=null;this.src='${defaultPhoto}';">
-                          <div class="card-body">
-                              <div class="d-flex justify-content-between" id="card-header">
-                                  <div class="card-title" id="profile-name">${user.f_name}</div>
-                                  <div class="card-title" id="profile-age">${user.age}</div>
-                              </div>
-                          <p class="card-text">${user.bio}</p>
-  
-                          <form action="/app_reaction" method="post" id="currentProfile">
-                            <input type="text" name="myuserID" value="${myuserid}" style="display:none;">
-                            <input type="text" name="theiruserID" value="${user.userid}" style="display:none;">
-                            <div class="d-flex justify-content-between" id="card-reactions">
-                                <button type="submit" name="liked" value="false" class="btn btn-light btn-reactions" id="dislike-btn"><i class="fa fa-times" aria-hidden="true"></i></button>
-                                <button type="submit" name="liked" value="true" class="btn btn-light btn-reactions" id="like-btn"><i class="fa fa-heart" aria-hidden="true"></i></button>
-                            </div>
-                            </form>
-                          </div>
-                      </div>
+                ${createCardsHTML(myuserid, user)}
               </div>
   
           </div>
