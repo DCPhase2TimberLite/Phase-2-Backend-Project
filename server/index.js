@@ -131,21 +131,23 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRe
                     console.log('setting session id from: ', req.session.passport.user)
                     req.session.passport.user = profile.userid
                     console.log('setting session id to: ', req.session.passport.user)
-                    return
                 })
+                .then(() => {
+                    console.log('going to /myProfile')
+                    res.redirect('/myProfile')})
             })
         } else if (account) {
             console.log('user found, logging in...')
             console.log('setting session id from: ', req.session.passport.user)
             req.session.passport.user = account.id
             console.log('setting session id to: ', req.session.passport.user)
-            return
+            console.log('going to /app')
+            res.redirect('/app')
         } else {
             console.log('error handling fb user')
             return
         }
     })
-    .then(() => {res.redirect('/app')})
 })
 
 // Logout

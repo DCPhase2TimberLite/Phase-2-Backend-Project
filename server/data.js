@@ -175,6 +175,11 @@ function filterProfilesByPreferences(myData, seenArr){
     } else {
         prefGenderArr=[myData.pref_gender]
     }
+
+    if (myData.city==null) {
+        myData.city=='Houston'
+    }
+
     // Run Sequelize Query to find users that match my preferences and I match theirs
     return db.profiledata.findAll({
         where: {
