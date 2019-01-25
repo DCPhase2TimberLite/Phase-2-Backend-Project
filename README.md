@@ -57,7 +57,7 @@ Travis CI carries out a series of tasks to to build and test the code from the G
   - Local strategy for authentication: email and password
 
 - Project website publicly reachable via `https`
-  - Used: [Zeit Now](https://zeit.co/now)
+  - Used: [Heroku](https://www.heroku.com/)
 
 - Client-side JavaScript should be less than 200 lines of code.
   - Note: this does not include libraries
