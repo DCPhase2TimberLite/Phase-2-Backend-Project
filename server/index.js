@@ -444,7 +444,7 @@ function buildAppHTML (myuserid, user, arrayOfMatches) {
                       <button class="btn-md btn-danger btn-block" type="submit">Sign out</button>
                   </form>
               <h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   Timber</h4>
-                  <a href="/myProfile"><h5 style="text-align:center; color: #000; font-weight: 800;"><i class="fas fa-fire"></i>   My Profile</h5></a>
+              <a href="/myProfile"><h4 style="text-align:center; color: #fff; font-weight: 800; background-color:#ff5050; padding:25px;"><i class="fas fa-fire"></i>   My Profile</h4></a>
                   <p style="text-align:center; background-color:#ff5050;;">Matches</p><br />
                 
                   <div class="d-flex flex-row" id="matchesContainer" style="flex-wrap: wrap; justify-content:space-around;">
@@ -464,7 +464,7 @@ function buildAppHTML (myuserid, user, arrayOfMatches) {
 }
 
 function buildMyProfileHTML (user) {
-  return `
+  return `            
     <body style="background-color:#686868">
         <div class="container-fluid">
             <div class="row">

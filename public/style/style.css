@@ -76,3 +76,12 @@
 .email-text {
     font-size: 10px;
 }
+
+* .form-row {
+    color: #000;
+}
+
+ a:hover {
+    text-decoration: underline overline;
+    color: #fff;
+}
